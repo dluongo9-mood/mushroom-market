@@ -112,7 +112,8 @@ EXCLUDE_PATTERNS = [
     r"\bring\s*hoop\b", r"\bcharm\b(?!.*charcoal)", r"\bkeychain\b",
     r"\bnovelty\b", r"\bcostume\b", r"\bhalloween\b",
     r"\bfabric\b", r"\bstainless steel\b",
-    r"\btrademark fine art\b", r"\b3drose\b", r"\bambesonne\b", r"\bbuyenlarge\b",
+    r"\btrademark fine art\b", r"\b3drose\b", r"\bambesonne\b", r"\bbuyenlarge\b", r"\blunarable\b",
+    r"\bscience source\b", r"\bcharting nature\b", r"\bvintage inky\b",
     r"\bapron\b", r"\btote\b", r"\bpurse\b", r"\bwallet\b", r"\bumbrella\b",
     r"\bbackpack\b", r"\bclutch bag\b",
     r"\bfunny\b.*\bhunting\b", r"\bvintage\s+inky\b",
@@ -640,8 +641,65 @@ BRAND_PREFIXES = {
     "swanson ": "Swanson",
 }
 
-# Sort by length descending so longest prefix matches first
+# ── Brand database ────────────────────────────────────────────────────────────
+# Load canonical brand database (built from all marketplace sources)
+BRAND_DB_PATH = Path("brand_database.json")
+
+def _load_brand_db():
+    """Load brand database and build lookup structures."""
+    import json
+    db = {}
+    if BRAND_DB_PATH.exists():
+        with open(BRAND_DB_PATH, encoding="utf-8") as f:
+            db = json.load(f)
+
+    # Build lowercase → canonical mapping
+    lower_to_canonical = {}
+    for canonical, data in db.items():
+        lower_to_canonical[canonical.lower()] = canonical
+        for alias in data.get("aliases", []):
+            lower_to_canonical[alias.lower()] = canonical
+
+    # Also add all BRAND_PREFIXES as overrides (hand-curated = higher priority)
+    for prefix, canonical in BRAND_PREFIXES.items():
+        lower_to_canonical[prefix.strip().lower()] = canonical
+
+    # Build sorted list for scanning titles (longest first to avoid partial matches)
+    scan_entries = sorted(lower_to_canonical.items(), key=lambda x: -len(x[0]))
+
+    # Filter scan entries: skip names that are too short or too generic for mid-title matching
+    UNSAFE_SCAN = {"the", "real", "now", "pure", "om", "raw", "one", "vibe", "glow",
+        "rise", "trip", "flow", "fire", "dawn", "hive", "core", "zen", "muse",
+        "food", "foods", "health", "nutrition", "coffee", "tea", "cocoa",
+        "chocolate", "supplement", "organic", "natural", "wellness", "powder",
+        "complex", "blend", "formula", "focus", "energy", "sleep", "calm",
+        "immune", "daily", "complete", "generic", "japanese", "chinese",
+        "ashwagandha", "liposomal", "cognitive function", "fruiting bodies",
+        "chanterelle", "porcini", "morel", "inner elevate", "180g",
+        # Home decor / non-supplement brands (shouldn't match supplement titles)
+        "ambesonne", "3drose", "lunarable", "buyenlarge", "trademark fine art",
+        "science source", "vintage inky cap", "charting nature",
+        "3drose large", "vintage edible", "vintage chanterelles",
+        "chinese edible fungi", "edible american", "superfoods company"}
+    scan_safe = [(k, v) for k, v in scan_entries if len(k) >= 4 and k not in UNSAFE_SCAN]
+
+    return lower_to_canonical, scan_entries, scan_safe
+
+_BRAND_LOOKUP, _BRAND_SCAN_ALL, _BRAND_SCAN_SAFE = _load_brand_db()
+
+# Sort prefixes by length descending so longest prefix matches first
 _SORTED_PREFIXES = sorted(BRAND_PREFIXES.items(), key=lambda x: -len(x[0]))
+
+_GENERIC_STARTS = frozenset({"mushroom", "mushrooms", "organic", "lions", "lion's",
+    "turkey", "10", "10-in-1", "functional", "11in1", "adaptogenic",
+    "instant", "decaf", "premium", "natural", "herbal", "pure", "super",
+    "advanced", "extra", "high", "vegan", "usda", "freeze-dried",
+    "next-gen", "world's", "certified", "supplement", "capsule", "capsules",
+    "powder", "gummies", "gummy", "extract", "tincture", "liquid", "drops",
+    "complex", "blend", "formula", "coffee", "tea", "cocoa", "chocolate",
+    "immunity", "immune", "brain", "focus", "energy", "sleep", "calm",
+    "cordyceps", "reishi", "chaga", "maitake", "shiitake", "tremella",
+    "16x", "2", "100", "4200mg", "8", "14", "25-in-1", "strength"})
 
 
 def extract_amazon_brand(title):
@@ -649,23 +707,12 @@ def extract_amazon_brand(title):
         return None
     t_lower = title.lower().strip()
 
-    # Known prefix → canonical name
+    # 1. Known prefix → canonical name (hand-curated, highest confidence)
     for prefix, canonical in _SORTED_PREFIXES:
         if t_lower.startswith(prefix):
             return canonical
 
-    _GENERIC_STARTS = {"mushroom", "mushrooms", "organic", "lions", "lion's",
-        "turkey", "10", "10-in-1", "functional", "11in1", "adaptogenic",
-        "instant", "decaf", "premium", "natural", "herbal", "pure", "super",
-        "advanced", "extra", "high", "vegan", "usda", "freeze-dried",
-        "next-gen", "world's", "certified", "supplement", "capsule", "capsules",
-        "powder", "gummies", "gummy", "extract", "tincture", "liquid", "drops",
-        "complex", "blend", "formula", "coffee", "tea", "cocoa", "chocolate",
-        "immunity", "immune", "brain", "focus", "energy", "sleep", "calm",
-        "cordyceps", "reishi", "chaga", "maitake", "shiitake", "tremella",
-        "16x", "2", "100", "4200mg", "8", "14", "25-in-1", "strength"}
-
-    # Fallback: split on delimiter
+    # 2. Delimiter-based extraction
     for sep in [" - ", " – ", " — ", " | "]:
         if sep in title:
             c = title.split(sep)[0].strip()
@@ -697,20 +744,27 @@ def extract_amazon_brand(title):
                     return candidate
             break  # only try first delimiter found
 
-    # "by BrandName" pattern (e.g. "Mushroom Blend by Four Sigmatic")
+    # 3. "by BrandName" pattern (e.g. "Mushroom Blend by Four Sigmatic")
     by_match = re.search(r'\bby\s+([A-Z][A-Za-zé&\'.]+(?:\s+[A-Z][A-Za-zé&\'.]+){0,3})', title)
     if by_match:
         candidate = by_match.group(1).strip()
         if 3 <= len(candidate) < 35 and candidate.lower().split()[0] not in _GENERIC_STARTS:
             return candidate
 
-    # Comma split (less reliable)
+    # 4. Comma split (less reliable)
     if "," in title:
         c = title.split(",")[0].strip()
         words = c.lower().split()
         if (len(words) <= 3 and len(c) < 30
                 and words[0] not in _GENERIC_STARTS):
             return c
+
+    # 5. Brand database scan — search for known brand names anywhere in the title
+    #    Only use "safe" entries (4+ chars, not generic words) to avoid false matches
+    for brand_lower, canonical in _BRAND_SCAN_SAFE:
+        # Word-boundary match to avoid partial matches (e.g. "om" in "lemon")
+        if re.search(r'(?<![a-zA-Z])' + re.escape(brand_lower) + r'(?![a-zA-Z])', t_lower):
+            return canonical
 
     return None
 
