@@ -97,25 +97,27 @@ FORM_FACTOR_RULES = [
 # Products matching these are excluded from the dataset entirely
 EXCLUDE_PATTERNS = [
     # Merch / apparel
-    r"\bmug\b", r"\bmugs\b", r"\btumbler\b", r"\bhat\b(?!.*shiitake)", r"\bbeanie\b",
-    r"\bshirt\b", r"\bt-shirt\b", r"\btee\b", r"\bhoodie\b", r"\bsweatshirt\b",
-    r"\bsweater\b", r"\bcardigan\b", r"\bsweatpants?\b", r"\bpajama\b",
+    r"\bmug\b", r"\bmugs\b", r"\btumbler\b(?!.*supplement)", r"\bhat\b(?!.*shiitake)", r"\bbeanie\b",
+    r"\bshirt\b", r"\bt-shirt\b", r"\btee\b(?!.*tea)", r"\bhoodie\b", r"\bsweatshirt\b",
+    r"\bsweater\b", r"\bpullover\b", r"\bcardigan\b", r"\bsweatpants?\b", r"\bpajama\b",
     r"\bpants?\b(?!.*plant)", r"\bshorts\b", r"\blegging\b", r"\bboxer\b",
     r"\bunderwear\b", r"\bsocks?\b", r"\bcrew sock\b",
-    r"\bonesie\b", r"\bbodysuit\b", r"\bromper\b",
+    r"\bonesie\b", r"\bbodysuit\b", r"\bromper\b", r"\boverall\b",
     r"\binfant clothing\b", r"\bbaby clothing\b",
-    r"\btoy\b(?!.*turkey)", r"\bplush\b", r"\bstuffed\b", r"\bsquishy\b",
+    r"\btoy\b(?!.*turkey)", r"\bplush\b(?!.*mushroom.*supplement)", r"\bstuffed\b", r"\bsquishy\b",
+    r"\brubber mushroom\b", r"\bllb\b.*\btoy",
     r"\bposter\b", r"\bcanvas\b(?!.*bag)", r"\bwall art\b", r"\bart print\b",
     r"\bframed\b", r"\bsticker\b(?!.*mushroom.*supplement)", r"\bdecal\b",
     r"\bmagnet\b", r"\benamel pin\b", r"\bpatch\b(?!.*nicotine|.*glutathione)",
-    r"\bcurtain\b", r"\bshower\b(?!.*gel)", r"\bbedding\b", r"\bpillow\b",
+    r"\bcurtain\b", r"\bshower\b(?!.*gel)", r"\bbedding\b", r"\bpillow\b", r"\bhook pillow\b",
     r"\bcushion\b", r"\bblanket\b", r"\bcomforter\b", r"\bduvet\b", r"\bquilt\b",
     r"\bphone case\b", r"\biphone\b",
     r"\bearring\b", r"\bnecklace\b", r"\bjewelry\b", r"\bbracelet\b",
+    r"\bring\s*hoop\b", r"\bcharm\b(?!.*charcoal)", r"\bkeychain\b",
     r"\bnovelty\b", r"\bcostume\b", r"\bhalloween\b",
     r"\bfabric\b", r"\bstainless steel\b",
     r"\btrademark fine art\b", r"\b3drose\b", r"\bambesonne\b", r"\bbuyenlarge\b",
-    r"\bapron\b", r"\btote bag\b", r"\btote\b", r"\bpurse\b", r"\bwallet\b",
+    r"\bapron\b", r"\btote\b", r"\bpurse\b", r"\bwallet\b", r"\bumbrella\b",
     r"\bbackpack\b", r"\bclutch bag\b",
     r"\bfunny\b.*\bhunting\b", r"\bvintage\s+inky\b",
     # Home decor / garden / non-consumable
@@ -124,17 +126,29 @@ EXCLUDE_PATTERNS = [
     r"\btowel\b", r"\bnapkin\b", r"\btablecloth\b", r"\bplacemat\b",
     r"\bcoaster\b", r"\bornament\b", r"\bfigurine\b",
     r"\bceramic\b(?!.*cup.*tea)", r"\bporcelain\b(?!.*cup)",
-    r"\bglass mushroom\b", r"\bwood mushroom\b", r"\bcrystal mushroom\b",
+    r"\bglass mushroom\b", r"\bwood\w*\s*mushroom\b", r"\bwooden\s*mushroom\b",
+    r"\bcrystal mushroom\b", r"\bgemstone\s*mushroom\b", r"\bamethyst\s*mushroom\b",
+    r"\bhealing\s*crystal\b", r"\bchakra\s*crystal\b",
     r"\bresin mushroom\b", r"\bartificial\b.*\bmushroom\b",
-    r"\bglow in the dark\b", r"\blight set\b",
-    r"\bgarden\b(?!.*of.*life)", r"\bplanter\b", r"\bpot\b(?!.*potent)",
-    r"\bgnome\b", r"\bsasquatch\b",
+    r"\bcarved\s*mushroom\b", r"\bmushroom\s*wood\s*base\b",
+    r"\bmushroom\s*lamp\b", r"\blight\s*set\b",
+    r"\bglow in the dark\b",
+    r"\bgarden\b(?!.*of.*life)", r"\bplanter\b", r"\bwatering\b",
+    r"\bpot\b(?!.*potent)", r"\bgnome\b", r"\bsasquatch\b",
     r"\bpuzzle\b", r"\bcard game\b", r"\bplaying card\b", r"\bboard game\b",
-    r"\bcoloring\b", r"\bbook\b(?!.*cook)", r"\blogbook\b",
+    r"\bgilt.edged\b.*\bcard", r"\bmini card\b", r"\btarot\b", r"\bdeck\b",
+    r"\bcoloring\b", r"\bjournal\b(?!.*supplement)", r"\blogbook\b",
     r"\bheadband\b", r"\bgrip sock\b", r"\bfuzzy\b.*\bsock\b",
+    r"\bteapot\b", r"\bplate\b(?!.*gold)", r"\bbowl\b(?!.*supplement)",
+    # Books (not cookbooks)
+    r"\bbook\b(?!.*cook)",
+    r"\bdemystified\b", r"\bexplorer\b(?!.*mushroom.*extract)", r"\bmanual\b(?!.*extract)",
+    r"\bguide\b(?!.*supplement|.*usage|.*dosage)",
+    # Grow kits / spawn (not supplements)
+    r"\bgrow\s*kit\b", r"\bspawn\b", r"\bsubstrate\b",
     # Food / non-supplement
     r"\bpopcorn\b", r"\bjerky\b", r"\bchips?\b(?!.*mushroom.*supplement)",
-    r"\bseasoning\b(?!.*mushroom)", r"\bspice\b(?!.*mushroom)",
+    r"\bseasoning\b", r"\bspice\b(?!.*mushroom)", r"\bcooking with\b",
     r"\btrout fillet\b", r"\blobster mushroom\b",
     r"\bmalt ball\b", r"\bpoop\b",
     # Pet
@@ -174,6 +188,18 @@ def is_consumable(title):
     """Check if a product title indicates a consumable/supplement product."""
     t = title.lower()
     return any(re.search(p, t) for p in CONSUMABLE_PATTERNS)
+
+# Mushroom keywords — Faire products must mention mushrooms to be included
+MUSHROOM_REQUIRED = [
+    r"mushroom", r"fungi", r"lion.?s.mane", r"reishi", r"chaga",
+    r"cordyceps", r"turkey.tail", r"maitake", r"shiitake", r"tremella",
+    r"agaricus", r"hericium", r"ganoderma", r"trametes", r"mycelium",
+    r"beta.glucan", r"ahcc", r"shroom", r"mycolog",
+]
+
+def has_mushroom_keyword(title):
+    t = title.lower()
+    return any(re.search(p, t) for p in MUSHROOM_REQUIRED)
 
 
 def extract_mushroom_types(text):
@@ -611,7 +637,8 @@ def load_all():
         if is_excluded(name):
             excluded += 1
             continue
-        if not is_consumable(name):
+        # Faire requires BOTH a mushroom keyword AND a consumable indicator
+        if not (has_mushroom_keyword(name) and is_consumable(name)):
             faire_filtered += 1
             continue
         products.append({
