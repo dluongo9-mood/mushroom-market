@@ -1537,12 +1537,16 @@ def chart_market_map(products):
     return fig
 
 
-# ── Marketplace brand overlap heatmap ──────────────────────────────────────────
+# ── Marketplace brand overlap — UpSet plot (supports N sets) ──────────────────
 
 def chart_venn(products):
-    """Brand overlap heatmap: N×N matrix of brands shared between each pair of marketplaces.
-    Diagonal = total unique brands per marketplace. Replaces the 3-way Venn now that there
-    are up to 6 sources (a Venn diagram is impractical at 6-way)."""
+    """UpSet plot showing brand overlap across all active marketplaces.
+    Handles any number of sources; far more readable than a Venn for 4+ sets."""
+    import io, base64
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from upsetplot import UpSet, from_memberships
     from collections import defaultdict
 
     mp_brands = defaultdict(set)
@@ -1552,54 +1556,60 @@ def chart_venn(products):
             continue
         mp_brands[p["source"]].add(brand.lower().strip())
 
-    # Use only sources that actually have data
-    sources = [s for s in COLORS.keys() if s in mp_brands]
-    n = len(sources)
+    # Only sources with actual data, in a consistent order
+    source_order = [s for s in COLORS if s in mp_brands]
+    if len(source_order) < 2:
+        return '<p style="color:#999;text-align:center">Not enough sources for overlap analysis</p>'
 
-    matrix = []
-    for s1 in sources:
-        row = []
-        for s2 in sources:
-            if s1 == s2:
-                row.append(len(mp_brands[s1]))
-            else:
-                row.append(len(mp_brands[s1] & mp_brands[s2]))
-        matrix.append(row)
+    all_brands = set.union(*mp_brands.values())
 
-    # Build hover text
-    hover = []
-    for i, s1 in enumerate(sources):
-        row = []
-        for j, s2 in enumerate(sources):
-            if i == j:
-                row.append(f"<b>{s1}</b><br>{matrix[i][j]:,} unique brands")
-            else:
-                row.append(f"<b>{s1}</b> ∩ <b>{s2}</b><br>{matrix[i][j]:,} shared brands")
-        hover.append(row)
+    # Build membership list: for each brand, which sources carry it?
+    memberships = []
+    for brand in all_brands:
+        membership = [s for s in source_order if brand in mp_brands[s]]
+        if membership:
+            memberships.append(membership)
 
-    fig = go.Figure(data=go.Heatmap(
-        z=matrix,
-        x=sources,
-        y=sources,
-        text=matrix,
-        texttemplate="%{text}",
-        textfont={"size": 13},
-        colorscale=[[0, "white"], [1, "#1E3A5F"]],
-        hovertext=hover,
-        hoverinfo="text",
-        showscale=True,
-        colorbar=dict(title="Brands"),
-    ))
+    data = from_memberships(memberships)
 
-    fig.update_layout(
-        title="Brand Overlap Across Marketplaces<br>"
-              "<sup>Diagonal = unique brands per marketplace. Off-diagonal = brands appearing in both.</sup>",
-        xaxis=dict(side="bottom"),
-        yaxis=dict(autorange="reversed"),
-        height=420,
-        template="plotly_white",
+    fig = plt.figure(figsize=(12, 5))
+    fig.patch.set_facecolor("white")
+
+    source_colors = [COLORS.get(s, "#999") for s in source_order]
+    upset = UpSet(
+        data,
+        subset_size="count",
+        show_counts=True,
+        sort_by="cardinality",
+        totals_plot_elements=3,
     )
-    return fig
+    # Color the set size bars by marketplace color
+    for src, color in zip(source_order, source_colors):
+        upset.style_subsets(present=src, facecolor=color)
+
+    axes = upset.plot(fig)
+
+    # Retitle
+    fig.suptitle(
+        "Brand Overlap Across Marketplaces\n"
+        "Bar height = # brands in that intersection  ·  Dots show which marketplaces combine",
+        fontsize=11, y=1.01, color="#333",
+    )
+
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    buf.seek(0)
+    img_b64 = base64.b64encode(buf.read()).decode()
+
+    return (
+        f'<div style="text-align:center;padding:12px 0">'
+        f'<img src="data:image/png;base64,{img_b64}" '
+        f'style="width:100%;max-width:960px;display:inline-block"/>'
+        f'</div>'
+    )
 
 
 # ── Keepa growth charts ────────────────────────────────────────────────────────
