@@ -27,9 +27,6 @@ DATES_CSV    = "amazon_dates.csv"
 DETAILS_CSV  = "amazon_details.csv"
 KEEPA_CSV    = "keepa_history.csv"
 OUTPUT_HTML  = "mushroom_dashboard.html"
-THRIVE_CSV   = "thrive_mushrooms.csv"
-WALMART_CSV  = "walmart_mushrooms.csv"
-VITACOST_CSV = "vitacost_mushrooms.csv"
 DTC_CSV      = "dtc_mushrooms.csv"
 TARGET_CSV   = "target_mushrooms.csv"
 
@@ -37,9 +34,6 @@ COLORS = {
     "Amazon":       "#FF9900",
     "iHerb":        "#6BBE45",
     "Faire":        "#5B63FE",
-    "Thrive Market": "#00A878",
-    "Walmart":       "#0071DC",
-    "Vitacost":      "#E31837",
     "DTC":           "#9B59B6",   # purple — direct-to-consumer
     "Target":        "#CC0000",   # Target red
 }
@@ -669,70 +663,6 @@ def load_all():
             "soldPastMonth": None,
             "url": r.get("url"),
         })
-
-    if Path(THRIVE_CSV).exists():
-        for r in read_csv(THRIVE_CSV):
-            name = r.get("productName", "")
-            if is_excluded(name):
-                excluded += 1
-                continue
-            price = parse_float(r.get("memberPrice")) or parse_float(r.get("retailPrice"))
-            ff = r.get("formFactor") or infer_form_factor(name)
-            products.append({
-                "source": "Thrive Market", "id": r.get("productId"),
-                "brand": r.get("brand"), "productName": name,
-                "mushroomTypes": extract_mushroom_types(name),
-                "formFactor": ff,
-                "price": price,
-                "rating": parse_float(r.get("rating")),
-                "reviewCount": parse_int(r.get("reviewCount")),
-                "soldPastMonth": None,
-                "url": r.get("url"),
-            })
-    else:
-        print(f"  ⚠ {THRIVE_CSV} not found — skipping Thrive Market")
-
-    if Path(WALMART_CSV).exists():
-        for r in read_csv(WALMART_CSV):
-            name = r.get("productName", "")
-            if is_excluded(name):
-                excluded += 1
-                continue
-            ff = r.get("formFactor") or infer_form_factor(name)
-            products.append({
-                "source": "Walmart", "id": r.get("itemId"),
-                "brand": r.get("brand"), "productName": name,
-                "mushroomTypes": extract_mushroom_types(name),
-                "formFactor": ff,
-                "price": parse_float(r.get("price")),
-                "rating": parse_float(r.get("rating")),
-                "reviewCount": parse_int(r.get("reviewCount")),
-                "soldPastMonth": None,
-                "url": r.get("url"),
-            })
-    else:
-        print(f"  ⚠ {WALMART_CSV} not found — skipping Walmart")
-
-    if Path(VITACOST_CSV).exists():
-        for r in read_csv(VITACOST_CSV):
-            name = r.get("productName", "")
-            if is_excluded(name):
-                excluded += 1
-                continue
-            ff = r.get("formFactor") or infer_form_factor(name)
-            products.append({
-                "source": "Vitacost", "id": r.get("sku"),
-                "brand": r.get("brand"), "productName": name,
-                "mushroomTypes": extract_mushroom_types(name),
-                "formFactor": ff,
-                "price": parse_float(r.get("price")),
-                "rating": parse_float(r.get("rating")),
-                "reviewCount": parse_int(r.get("reviewCount")),
-                "soldPastMonth": None,
-                "url": r.get("url"),
-            })
-    else:
-        print(f"  ⚠ {VITACOST_CSV} not found — skipping Vitacost")
 
     if Path(DTC_CSV).exists():
         for r in read_csv(DTC_CSV):
@@ -2287,7 +2217,7 @@ let filtered = [];
 let showCount = 50;
 const PAGE_SIZE = 50;
 
-const srcColors = {{"Amazon":"#FF9900","iHerb":"#6BBE45","Faire":"#5B63FE","Thrive Market":"#00A878","Walmart":"#0071DC","Vitacost":"#E31837"}};
+const srcColors = {{"Amazon":"#FF9900","iHerb":"#6BBE45","Faire":"#5B63FE","DTC":"#9B59B6","Target":"#CC0000"}};
 
 function applyFilters() {{
   const search = document.getElementById('dt-search').value.toLowerCase();
