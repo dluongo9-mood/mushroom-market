@@ -31,6 +31,7 @@ THRIVE_CSV   = "thrive_mushrooms.csv"
 WALMART_CSV  = "walmart_mushrooms.csv"
 VITACOST_CSV = "vitacost_mushrooms.csv"
 DTC_CSV      = "dtc_mushrooms.csv"
+TARGET_CSV   = "target_mushrooms.csv"
 
 COLORS = {
     "Amazon":       "#FF9900",
@@ -40,6 +41,7 @@ COLORS = {
     "Walmart":       "#0071DC",
     "Vitacost":      "#E31837",
     "DTC":           "#9B59B6",   # purple — direct-to-consumer
+    "Target":        "#CC0000",   # Target red
 }
 
 # ── Reuse normalization helpers from build_market_analysis.py ──────────────────
@@ -192,9 +194,9 @@ def is_consumable(title):
 # Mushroom keywords — Faire products must mention mushrooms to be included
 MUSHROOM_REQUIRED = [
     r"mushroom", r"fungi", r"lion.?s.mane", r"reishi", r"chaga",
-    r"cordyceps", r"turkey.tail", r"maitake", r"shiitake", r"tremella",
-    r"agaricus", r"hericium", r"ganoderma", r"trametes", r"mycelium",
-    r"beta.glucan", r"ahcc", r"shroom", r"mycolog",
+    r"cordyceps", r"cordy", r"turkey.tail", r"maitake", r"shiitake", r"tremella",
+    r"agaricus", r"hericium", r"ganoderma", r"trametes", r"mycelium", r"myco",
+    r"beta.glucan", r"ahcc", r"shroom", r"mycolog", r"adaptogen",
 ]
 
 def has_mushroom_keyword(title):
@@ -737,6 +739,32 @@ def load_all():
             })
     else:
         print(f"  ⚠ {DTC_CSV} not found — skipping DTC")
+
+    target_filtered = 0
+    if Path(TARGET_CSV).exists():
+        for r in read_csv(TARGET_CSV):
+            name = r.get("productName", "")
+            if is_excluded(name):
+                excluded += 1
+                continue
+            if not has_mushroom_keyword(name):
+                target_filtered += 1
+                continue
+            ff = r.get("formFactor") or infer_form_factor(name)
+            products.append({
+                "source": "Target", "id": r.get("tcin"),
+                "brand": r.get("brand"), "productName": name,
+                "mushroomTypes": extract_mushroom_types(name),
+                "formFactor": ff,
+                "price": parse_float(r.get("price")),
+                "rating": parse_float(r.get("rating")),
+                "reviewCount": parse_int(r.get("reviewCount")),
+                "soldPastMonth": None,
+                "url": r.get("url"),
+            })
+        print(f"  Target: filtered {target_filtered} non-mushroom products")
+    else:
+        print(f"  ⚠ {TARGET_CSV} not found — skipping Target")
 
     # Deduplicate by (source, id) — same product can appear from multiple search queries
     seen = set()
@@ -1625,7 +1653,7 @@ def chart_market_map(products):
 # ── Marketplace Venn diagram (matplotlib-venn 3-way + DTC sidebar) ───────────
 
 def chart_venn(products):
-    """3-way Venn (Amazon × iHerb × Faire) via matplotlib-venn, plus DTC overlap bar chart."""
+    """3-way Venn (Amazon × iHerb × Faire) via matplotlib-venn, plus DTC & Target overlap charts."""
     import io, base64
     import matplotlib
     matplotlib.use("Agg")
@@ -1645,12 +1673,18 @@ def chart_venn(products):
     i = mp_brands.get("iHerb", set())
     f = mp_brands.get("Faire", set())
     d = mp_brands.get("DTC", set())
+    t = mp_brands.get("Target", set())
 
-    has_dtc = len(d) > 0
-    fig = plt.figure(figsize=(16 if has_dtc else 10, 8))
+    has_sidebar = len(d) > 0 or len(t) > 0
+    sidebar_count = (1 if len(d) > 0 else 0) + (1 if len(t) > 0 else 0)
+
+    fig = plt.figure(figsize=(18 if has_sidebar else 10, 8))
     fig.patch.set_facecolor("white")
 
-    if has_dtc:
+    if sidebar_count == 2:
+        gs = gridspec.GridSpec(2, 2, width_ratios=[2, 1], wspace=0.4, hspace=0.5)
+        ax_venn = fig.add_subplot(gs[:, 0])
+    elif sidebar_count == 1:
         gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1], wspace=0.4)
         ax_venn = fig.add_subplot(gs[0])
     else:
@@ -1702,19 +1736,14 @@ def chart_venn(products):
     ax_venn.axis("off")
 
     # ── DTC sidebar bar chart ─────────────────────────────────────────────────
-    if has_dtc:
-        ax_dtc = fig.add_subplot(gs[1])
+    sidebar_idx = 0
+    if len(d) > 0:
+        ax_dtc = fig.add_subplot(gs[sidebar_idx, 1]) if sidebar_count == 2 else fig.add_subplot(gs[1])
         ax_dtc.set_facecolor("white")
 
-        labels = ["DTC only", "Also on\nAmazon", "Also on\niHerb", "Also on\nFaire", "On all\n4 channels"]
-        values = [
-            len(d - a - i - f),
-            len(d & a),
-            len(d & i),
-            len(d & f),
-            len(d & a & i & f),
-        ]
-        bar_colors = ["#9B59B6", "#FF9900", "#6BBE45", "#5B63FE", "#555"]
+        labels = ["DTC only", "Also on\nAmazon", "Also on\niHerb", "Also on\nFaire"]
+        values = [len(d - a - i - f), len(d & a), len(d & i), len(d & f)]
+        bar_colors = ["#9B59B6", "#FF9900", "#6BBE45", "#5B63FE"]
 
         bars = ax_dtc.barh(labels, values, color=bar_colors, alpha=0.75, height=0.55)
         for bar, val in zip(bars, values):
@@ -1727,6 +1756,28 @@ def chart_venn(products):
         ax_dtc.spines["right"].set_visible(False)
         ax_dtc.tick_params(labelsize=9)
         ax_dtc.set_xlim(0, max(values) * 1.3 if values else 10)
+        sidebar_idx += 1
+
+    # ── Target sidebar bar chart ──────────────────────────────────────────────
+    if len(t) > 0:
+        ax_tgt = fig.add_subplot(gs[sidebar_idx, 1]) if sidebar_count == 2 else fig.add_subplot(gs[1])
+        ax_tgt.set_facecolor("white")
+
+        labels = ["Target only", "Also on\nAmazon", "Also on\niHerb", "Also on\nFaire"]
+        values = [len(t - a - i - f), len(t & a), len(t & i), len(t & f)]
+        bar_colors = ["#CC0000", "#FF9900", "#6BBE45", "#5B63FE"]
+
+        bars = ax_tgt.barh(labels, values, color=bar_colors, alpha=0.75, height=0.55)
+        for bar, val in zip(bars, values):
+            ax_tgt.text(bar.get_width() + 0.3, bar.get_y() + bar.get_height() / 2,
+                        str(val), va="center", fontsize=11, fontweight="bold", color="#333")
+
+        ax_tgt.set_title(f"Target Brands ({len(t):,} total)\nChannel overlap", fontsize=11, pad=10, color="#333")
+        ax_tgt.set_xlabel("# brands", fontsize=9)
+        ax_tgt.spines["top"].set_visible(False)
+        ax_tgt.spines["right"].set_visible(False)
+        ax_tgt.tick_params(labelsize=9)
+        ax_tgt.set_xlim(0, max(values) * 1.3 if values else 10)
 
     plt.tight_layout()
 
@@ -1739,7 +1790,7 @@ def chart_venn(products):
     return (
         f'<div style="text-align:center;padding:12px 0">'
         f'<img src="data:image/png;base64,{img_b64}" '
-        f'style="width:100%;max-width:960px;display:inline-block"/>'
+        f'style="width:100%;max-width:1100px;display:inline-block"/>'
         f'</div>'
     )
 
