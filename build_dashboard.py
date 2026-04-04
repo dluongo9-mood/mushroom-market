@@ -148,11 +148,26 @@ EXCLUDE_PATTERNS = [
     r"\bguide\b(?!.*supplement|.*usage|.*dosage)",
     # Grow kits / spawn (not supplements)
     r"\bgrow\s*kit\b", r"\bspawn\b", r"\bsubstrate\b",
-    # Food / non-supplement
+    # Food / grocery / non-supplement
     r"\bpopcorn\b", r"\bjerky\b", r"\bchips?\b(?!.*mushroom.*supplement)",
     r"\bseasoning\b", r"\bspice\b(?!.*mushroom)", r"\bcooking with\b",
     r"\btrout fillet\b", r"\blobster mushroom\b",
     r"\bmalt ball\b", r"\bpoop\b",
+    r"\bsoup\b", r"\bramen\b", r"\bnoodle\b", r"\bpasta\b(?!.*supplement)",
+    r"\bravioli\b", r"\brisotto\b", r"\bpizza\b", r"\balfredo\b",
+    r"\bpasta sauce\b", r"\bspaghetti sauce\b", r"\bcream of mushroom\b",
+    r"\bcondensed.*mushroom\b", r"\bstir.fry\b", r"\bmeal kit\b",
+    r"\bfrozen.*(?:bowl|pizza|ravioli|medley|entree|meal|patties?)\b",
+    r"\bfresh.*mushrooms?\b", r"\bsliced.*mushrooms?\b", r"\bwhole.*mushrooms?\b",
+    r"\bbaby bella\b", r"\bcremini\b", r"\bportobello\b(?!.*extract)",
+    r"\bwhite mushrooms?\b", r"\benoki\b(?!.*supplement)", r"\bbeech mushroom\b",
+    r"\bstems\s*(?:&|and)\s*pieces\b", r"\bpieces\s*(?:&|and)\s*stems\b",
+    r"\bsquishmallow\b", r"\bmocchi\b", r"\bnintendo\b", r"\bsuper mario\b",
+    r"\baurora\b.*\bstuffed\b",
+    r"\bbone broth\b", r"\bpork chop\b", r"\bbeef patt", r"\bchicken.*rice\b",
+    r"\bdel monte\b", r"\bforest to fork\b(?!.*extract)", r"\bshiloh farms\b",
+    r"\bfigurine\b", r"\bsagebrook\b", r"\bfield guide\b",
+    r"\b(?:hardcover|paperback)\b",
     # Pet
     r"\bfor dogs?\b", r"\bfor cats?\b", r"\bfor pets?\b",
     r"\bcanine\b", r"\bfeline\b", r"\bpet supplement\b", r"\bpet chew\b",
@@ -747,7 +762,7 @@ def load_all():
             if is_excluded(name):
                 excluded += 1
                 continue
-            if not has_mushroom_keyword(name):
+            if not (has_mushroom_keyword(name) and is_consumable(name)):
                 target_filtered += 1
                 continue
             ff = r.get("formFactor") or infer_form_factor(name)
