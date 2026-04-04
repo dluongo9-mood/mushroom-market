@@ -506,6 +506,138 @@ BRAND_PREFIXES = {
     "natura health": "Natura Health Products",
     "mojo ": "Mojo",
     "vitamatic ": "Vitamatic",
+    # Round 3 — extracted from remaining unknowns
+    "nature's truth": "Nature's Truth",
+    "nature's bounty": "Nature's Bounty",
+    "nutra champs": "NutraChamps", "nutrachamps": "NutraChamps",
+    "tribe organics": "TRIBE ORGANICS", "tribe ": "TRIBE",
+    "frontier co-op": "Frontier Co-op",
+    "premier research": "Premier Research Labs",
+    "sayan ": "Sayan",
+    "hodgins harvest": "Hodgins Harvest",
+    "wild brew": "Wild Brew",
+    "ra hygge": "Rå Hygge", "rå hygge": "Rå Hygge",
+    "sayuu ": "SAYUU",
+    "cherie sweet heart": "Cherie Sweet Heart",
+    "charlotte's web": "Charlotte's Web",
+    "life extension": "Life Extension",
+    "naturalma ": "Naturalma",
+    "ganoherb": "GANOHERB",
+    "nuyu ": "Nuyu",
+    "atlas+": "Atlas+",
+    "energinseng": "Energinseng",
+    "dodjivi": "Dodjivi",
+    "zatural ": "Zatural",
+    "gano excel": "Gano Excel",
+    "muse ": "Muse",
+    "fully joe": "Fully Joe",
+    "mycobrew": "MycoBrew",
+    "planetary herbals": "Planetary Herbals",
+    "gobiotix": "GOBIOTIX",
+    "brainmd": "BrainMD",
+    "vbot ": "Vbot",
+    "saga serenity": "SAGA Serenity",
+    "fantastic fungi": "Fantastic Fungi",
+    "megafood": "MegaFood",
+    "immortal mycelium": "Immortal Mycelium",
+    "happie fungi": "Happie Fungi Fusion",
+    "rave mood": "RAVE Mood",
+    "daytrip ": "Daytrip",
+    "chroma ": "CHROMA",
+    "more. longevity": "More. Longevity",
+    "lyfe ": "LYFE",
+    "pescience": "PEScience",
+    "herbtonics": "Herbtonics",
+    "smnutrition": "SMNutrition",
+    "troomy": "Troomy",
+    "lifesource vitamins": "LifeSource Vitamins",
+    "herbana manufacturing": "HERBANA",
+    "fatcaps": "FatCaps",
+    "best earth naturals": "Best Earth Naturals",
+    "rise-n-shine": "Rise-N-Shine",
+    "toniiq": "Toniiq",
+    "lyfefuel": "LyfeFuel",
+    "san zentori": "SAN ZENTORI",
+    "fungi botanica": "Fungi Botanica",
+    "dmoose": "DMoose",
+    "happy fox": "Happy Fox",
+    "sakoon": "Sakoon",
+    "lunakai": "LUNAKAI",
+    "mycolove": "Mycolove",
+    "mycl ": "MYCL",
+    "goldmine supershroom": "Goldmine",
+    "highvibe": "HighVibe",
+    "unbeetabrew": "UNBEETABREW",
+    "live conscious": "Live Conscious",
+    "sun potion": "Sun Potion",
+    "eversio wellness": "Eversio Wellness",
+    "mind master": "Mind Master",
+    "troop ": "Troop",
+    "econugenics": "EcoNugenics",
+    "wonderday": "WonderDay",
+    "revive md": "Revive MD",
+    "hiwell": "HiWell",
+    "naturejam": "Naturejam",
+    "sollo ": "Sollo",
+    "waiora": "Waiora",
+    "fresh healthcare": "Fresh Healthcare",
+    "zolotus": "Zolotus",
+    "road trip ": "Road Trip",
+    "pure essence labs": "Pure Essence Labs", "pure essence": "Pure Essence Labs",
+    "putrizen": "PUTRIZEN",
+    "mycomedix": "MYCOMedix",
+    "omogs ": "OMOGS",
+    "fito medic": "FITO MEDIC'S Lab",
+    "canlist": "CANLIST",
+    "shaney": "SHANEY",
+    "groovy bee": "Groovy Bee",
+    "acappella": "ACAPPELLA",
+    "nature target": "Nature Target",
+    "shizam": "SHIZAM",
+    "this little house": "This Little House of Mine",
+    "the enclare": "Enclare Nutrition",
+    "noto master": "NOTO",
+    "purica ": "PURICA",
+    "cancer sciences": "Cancer Sciences",
+    "matcha dna": "Matcha DNA",
+    "yege ": "YEGE",
+    "leafhaven": "LEAFHAVEN",
+    "way beyond": "WAY BEYOND",
+    "sbg salveo": "SBG Salveo",
+    "herbal hive": "Herbal Hive",
+    "z natural foods": "Z Natural Foods",
+    "bioschwartz": "BioSchwartz",
+    "bioemblem": "BioEmblem",
+    "profine truffle": "PROFINE",
+    "shroomi ": "Shroomi",
+    "shroomo ": "Shroomo",
+    "ohmyes": "OhmYes",
+    "bare organics": "BareOrganics", "bareorganics": "BareOrganics",
+    "zhou ": "ZHOU",
+    "arbonne ": "Arbonne",
+    "joybrü": "JOYBRÜ", "joybru": "JOYBRÜ",
+    "spice appeal": "Spice Appeal",
+    "golden field": "Golden Field",
+    "plntbsd": "PLNTBSD",
+    "boostup": "Boostup",
+    "karkze": "KARKZE",
+    "margxo": "Margxo",
+    "edara wellness": "Edara Wellness",
+    "muuk": "MUUK",
+    "fabula ": "Fabula",
+    "raaka ": "Raaka",
+    "holistic bin": "Holistic Bin",
+    "naturelo": "NATURELO",
+    "wixar ": "Wixar",
+    "wild foods": "Wild Foods",
+    "fire dept. coffee": "Fire Dept. Coffee",
+    "oldsoul": "OldSoul Superfood",
+    "kiki green": "Kiki Green",
+    "cymbiotika": "CYMBIOTIKA",
+    "auraShroom": "AuraShroom", "aurashroom": "AuraShroom",
+    "fidus ": "Fidus",
+    "bluebonnet": "BlueBonnet",
+    "swanson ": "Swanson",
 }
 
 # Sort by length descending so longest prefix matches first
@@ -522,25 +654,62 @@ def extract_amazon_brand(title):
         if t_lower.startswith(prefix):
             return canonical
 
+    _GENERIC_STARTS = {"mushroom", "mushrooms", "organic", "lions", "lion's",
+        "turkey", "10", "10-in-1", "functional", "11in1", "adaptogenic",
+        "instant", "decaf", "premium", "natural", "herbal", "pure", "super",
+        "advanced", "extra", "high", "vegan", "usda", "freeze-dried",
+        "next-gen", "world's", "certified", "supplement", "capsule", "capsules",
+        "powder", "gummies", "gummy", "extract", "tincture", "liquid", "drops",
+        "complex", "blend", "formula", "coffee", "tea", "cocoa", "chocolate",
+        "immunity", "immune", "brain", "focus", "energy", "sleep", "calm",
+        "cordyceps", "reishi", "chaga", "maitake", "shiitake", "tremella",
+        "16x", "2", "100", "4200mg", "8", "14", "25-in-1", "strength"}
+
     # Fallback: split on delimiter
     for sep in [" - ", " – ", " — ", " | "]:
         if sep in title:
             c = title.split(sep)[0].strip()
-            # Must be short (brand-like) and not start with generic words
             words = c.lower().split()
-            if (len(words) <= 4 and len(c) < 35
-                    and words[0] not in ("mushroom", "organic", "lions", "lion's",
-                                         "turkey", "10", "10-in-1", "functional",
-                                         "11in1", "adaptogenic", "instant", "decaf")):
+            # Short prefix: take as-is if it looks like a brand
+            if (len(words) <= 4 and len(c) < 40
+                    and words[0] not in _GENERIC_STARTS):
                 return c
+            # Longer prefix: extract first 1-3 brand-like words
+            brand_words = []
+            for w in c.split():
+                wl = w.lower().rstrip(",;:")
+                if wl in _GENERIC_STARTS or wl.startswith(
+                    ("mushroom", "organic", "lion", "turkey", "cordycep",
+                     "reishi", "chaga", "supplement", "capsule", "powder",
+                     "gumm", "extract", "tincture", "liquid", "blend",
+                     "complex", "coffee", "chocolate", "cocoa", "10-in",
+                     "11in", "13in", "19in", "20in")):
+                    break
+                if w[0].isupper() or w.isupper():
+                    brand_words.append(w)
+                else:
+                    break
+                if len(brand_words) >= 3:
+                    break
+            if brand_words:
+                candidate = " ".join(brand_words)
+                if 3 <= len(candidate) < 40:
+                    return candidate
+            break  # only try first delimiter found
+
+    # "by BrandName" pattern (e.g. "Mushroom Blend by Four Sigmatic")
+    by_match = re.search(r'\bby\s+([A-Z][A-Za-zé&\'.]+(?:\s+[A-Z][A-Za-zé&\'.]+){0,3})', title)
+    if by_match:
+        candidate = by_match.group(1).strip()
+        if 3 <= len(candidate) < 35 and candidate.lower().split()[0] not in _GENERIC_STARTS:
+            return candidate
 
     # Comma split (less reliable)
     if "," in title:
         c = title.split(",")[0].strip()
         words = c.lower().split()
         if (len(words) <= 3 and len(c) < 30
-                and words[0] not in ("mushroom", "organic", "lions", "lion's",
-                                     "turkey", "functional")):
+                and words[0] not in _GENERIC_STARTS):
             return c
 
     return None
