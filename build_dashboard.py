@@ -1537,16 +1537,15 @@ def chart_market_map(products):
     return fig
 
 
-# ── Marketplace brand overlap — UpSet plot (supports N sets) ──────────────────
+# ── Marketplace Venn diagram (4-set ellipse Venn via `venn` library) ─────────
 
 def chart_venn(products):
-    """UpSet plot showing brand overlap across all active marketplaces.
-    Handles any number of sources; far more readable than a Venn for 4+ sets."""
+    """4-set Venn diagram using ellipses — works for any number of sources up to 6."""
     import io, base64
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from upsetplot import UpSet, from_memberships
+    from venn import venn
     from collections import defaultdict
 
     mp_brands = defaultdict(set)
@@ -1556,44 +1555,33 @@ def chart_venn(products):
             continue
         mp_brands[p["source"]].add(brand.lower().strip())
 
-    # Only sources with actual data, in a consistent order
     source_order = [s for s in COLORS if s in mp_brands]
     if len(source_order) < 2:
         return '<p style="color:#999;text-align:center">Not enough sources for overlap analysis</p>'
 
-    all_brands = set.union(*mp_brands.values())
+    sets = {s: mp_brands[s] for s in source_order}
 
-    # Build membership list: for each brand, which sources carry it?
-    memberships = []
-    for brand in all_brands:
-        membership = [s for s in source_order if brand in mp_brands[s]]
-        if membership:
-            memberships.append(membership)
-
-    data = from_memberships(memberships)
-
-    fig = plt.figure(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(10, 7))
     fig.patch.set_facecolor("white")
 
-    source_colors = [COLORS.get(s, "#999") for s in source_order]
-    upset = UpSet(
-        data,
-        subset_size="count",
-        show_counts=True,
-        sort_by="cardinality",
-        totals_plot_elements=3,
+    venn(sets, ax=ax, legend_loc="upper right")
+
+    # Count cross-listed brands (appear in 2+ sources)
+    all_brands = set.union(*mp_brands.values())
+    cross_listed = sum(
+        1 for b in all_brands
+        if sum(1 for s in source_order if b in mp_brands[s]) >= 2
     )
-    # Color the set size bars by marketplace color
-    for src, color in zip(source_order, source_colors):
-        upset.style_subsets(present=src, facecolor=color)
+    on_all = sum(
+        1 for b in all_brands
+        if all(b in mp_brands[s] for s in source_order)
+    )
 
-    axes = upset.plot(fig)
-
-    # Retitle
-    fig.suptitle(
-        "Brand Overlap Across Marketplaces\n"
-        "Bar height = # brands in that intersection  ·  Dots show which marketplaces combine",
-        fontsize=11, y=1.01, color="#333",
+    ax.set_title(
+        f"Brand Overlap Across {len(source_order)} Channels\n"
+        f"{on_all} brands on all channels  ·  {cross_listed} cross-listed  ·  "
+        f"{len(all_brands):,} total unique brands",
+        fontsize=12, pad=14, color="#333",
     )
 
     plt.tight_layout()
@@ -1607,7 +1595,7 @@ def chart_venn(products):
     return (
         f'<div style="text-align:center;padding:12px 0">'
         f'<img src="data:image/png;base64,{img_b64}" '
-        f'style="width:100%;max-width:960px;display:inline-block"/>'
+        f'style="width:100%;max-width:800px;display:inline-block"/>'
         f'</div>'
     )
 
