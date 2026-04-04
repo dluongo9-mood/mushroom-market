@@ -1537,15 +1537,16 @@ def chart_market_map(products):
     return fig
 
 
-# ── Marketplace Venn diagram (4-set ellipse Venn via `venn` library) ─────────
+# ── Marketplace Venn diagram (matplotlib-venn 3-way + DTC sidebar) ───────────
 
 def chart_venn(products):
-    """4-set Venn diagram using ellipses — works for any number of sources up to 6."""
+    """3-way Venn (Amazon × iHerb × Faire) via matplotlib-venn, plus DTC overlap bar chart."""
     import io, base64
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from venn import venn
+    import matplotlib.gridspec as gridspec
+    from matplotlib_venn import venn3
     from collections import defaultdict
 
     mp_brands = defaultdict(set)
@@ -1555,34 +1556,92 @@ def chart_venn(products):
             continue
         mp_brands[p["source"]].add(brand.lower().strip())
 
-    source_order = [s for s in COLORS if s in mp_brands]
-    if len(source_order) < 2:
-        return '<p style="color:#999;text-align:center">Not enough sources for overlap analysis</p>'
+    a = mp_brands.get("Amazon", set())
+    i = mp_brands.get("iHerb", set())
+    f = mp_brands.get("Faire", set())
+    d = mp_brands.get("DTC", set())
 
-    sets = {s: mp_brands[s] for s in source_order}
-
-    fig, ax = plt.subplots(figsize=(10, 7))
+    has_dtc = len(d) > 0
+    fig = plt.figure(figsize=(12 if has_dtc else 8, 6))
     fig.patch.set_facecolor("white")
 
-    venn(sets, ax=ax, legend_loc="upper right")
+    if has_dtc:
+        gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1], wspace=0.35)
+        ax_venn = fig.add_subplot(gs[0])
+    else:
+        ax_venn = fig.add_subplot(111)
 
-    # Count cross-listed brands (appear in 2+ sources)
-    all_brands = set.union(*mp_brands.values())
-    cross_listed = sum(
-        1 for b in all_brands
-        if sum(1 for s in source_order if b in mp_brands[s]) >= 2
-    )
-    on_all = sum(
-        1 for b in all_brands
-        if all(b in mp_brands[s] for s in source_order)
-    )
+    # ── 3-way Venn: Amazon / iHerb / Faire ───────────────────────────────────
+    v = venn3([a, i, f], set_labels=("", "", ""), ax=ax_venn)
 
-    ax.set_title(
-        f"Brand Overlap Across {len(source_order)} Channels\n"
-        f"{on_all} brands on all channels  ·  {cross_listed} cross-listed  ·  "
-        f"{len(all_brands):,} total unique brands",
-        fontsize=12, pad=14, color="#333",
+    patch_colors = {
+        "100": "#FF9900", "010": "#6BBE45", "001": "#5B63FE",
+        "110": "#C8A020", "101": "#A06AB0", "011": "#4E9290", "111": "#888888",
+    }
+    for pid, color in patch_colors.items():
+        patch = v.get_patch_by_id(pid)
+        if patch:
+            patch.set_facecolor(color)
+            patch.set_alpha(0.45)
+            patch.set_edgecolor("white")
+            patch.set_linewidth(1.5)
+
+    for pid in patch_colors:
+        lbl = v.get_label_by_id(pid)
+        if lbl:
+            lbl.set_fontsize(13)
+            lbl.set_fontweight("bold")
+            lbl.set_color("#222")
+
+    for name, count, color, lid in [
+        ("Amazon", len(a), "#FF9900", "A"),
+        ("iHerb",  len(i), "#4A8A2A", "B"),
+        ("Faire",  len(f), "#3B43CC", "C"),
+    ]:
+        lbl = v.get_label_by_id(lid)
+        if lbl:
+            lbl.set_text(f"{name}\n{count:,} brands")
+            lbl.set_fontsize(11)
+            lbl.set_fontweight("bold")
+            lbl.set_color(color)
+
+    aif = len(a & i & f)
+    ai  = len((a & i) - f)
+    af  = len((a & f) - i)
+    if_ = len((i & f) - a)
+    ax_venn.set_title(
+        f"Retail Marketplace Brand Overlap\n"
+        f"{aif} on all 3  ·  {ai+af+if_+aif} cross-listed  ·  Faire adds {len(f-a-i):,} unique",
+        fontsize=11, pad=10, color="#333",
     )
+    ax_venn.axis("off")
+
+    # ── DTC sidebar bar chart ─────────────────────────────────────────────────
+    if has_dtc:
+        ax_dtc = fig.add_subplot(gs[1])
+        ax_dtc.set_facecolor("white")
+
+        labels = ["DTC only", "Also on\nAmazon", "Also on\niHerb", "Also on\nFaire", "On all\n4 channels"]
+        values = [
+            len(d - a - i - f),
+            len(d & a),
+            len(d & i),
+            len(d & f),
+            len(d & a & i & f),
+        ]
+        bar_colors = ["#9B59B6", "#FF9900", "#6BBE45", "#5B63FE", "#555"]
+
+        bars = ax_dtc.barh(labels, values, color=bar_colors, alpha=0.75, height=0.55)
+        for bar, val in zip(bars, values):
+            ax_dtc.text(bar.get_width() + 0.3, bar.get_y() + bar.get_height() / 2,
+                        str(val), va="center", fontsize=11, fontweight="bold", color="#333")
+
+        ax_dtc.set_title(f"DTC Brands ({len(d):,} total)\nChannel overlap", fontsize=11, pad=10, color="#333")
+        ax_dtc.set_xlabel("# brands", fontsize=9)
+        ax_dtc.spines["top"].set_visible(False)
+        ax_dtc.spines["right"].set_visible(False)
+        ax_dtc.tick_params(labelsize=9)
+        ax_dtc.set_xlim(0, max(values) * 1.3 if values else 10)
 
     plt.tight_layout()
 
@@ -1595,7 +1654,7 @@ def chart_venn(products):
     return (
         f'<div style="text-align:center;padding:12px 0">'
         f'<img src="data:image/png;base64,{img_b64}" '
-        f'style="width:100%;max-width:800px;display:inline-block"/>'
+        f'style="width:100%;max-width:960px;display:inline-block"/>'
         f'</div>'
     )
 
