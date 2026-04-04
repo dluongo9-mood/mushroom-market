@@ -759,7 +759,7 @@ def load_all():
                 "price": parse_float(r.get("price")),
                 "rating": parse_float(r.get("rating")),
                 "reviewCount": parse_int(r.get("reviewCount")),
-                "soldPastMonth": None,
+                "soldPastMonth": parse_int(r.get("boughtPastMonth")),
                 "url": r.get("url"),
             })
         print(f"  Target: filtered {target_filtered} non-mushroom products")
