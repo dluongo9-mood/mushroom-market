@@ -1445,7 +1445,7 @@ def chart_market_map(products):
             continue
         rev = p["price"] * p["soldPastMonth"]
         ff = p.get("formFactor") or "Other"
-        brand = p.get("brand") or "Other"
+        brand = p.get("brand") or "Unknown"
         ff_brand_rev[ff][brand] += rev
         ff_totals[ff] += rev
 
