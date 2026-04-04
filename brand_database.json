@@ -24,6 +24,12 @@
       "Amazon"
     ]
   },
+  "2nd Springs": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "3 Farm Daughters": {
     "aliases": [],
     "sources": [
@@ -762,6 +768,7 @@
   "Baker's Botanics": {
     "aliases": [],
     "sources": [
+      "Amazon",
       "Faire"
     ]
   },
@@ -1118,6 +1125,12 @@
       "Target"
     ]
   },
+  "blluysterst": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "BLOOM NUTRITION": {
     "aliases": [],
     "sources": [
@@ -1305,6 +1318,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "Brain Bloom": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Brain Wave": {
@@ -1627,6 +1646,12 @@
       "Amazon"
     ]
   },
+  "Central Park Morning": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Centrum": {
     "aliases": [],
     "sources": [
@@ -1687,6 +1712,12 @@
       "Faire"
     ]
   },
+  "CHI CHAGA": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Chiramen": {
     "aliases": [],
     "sources": [
@@ -1724,6 +1755,12 @@
     ]
   },
   "Chérie Sweet Heart": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "Circle Organics": {
     "aliases": [],
     "sources": [
       "Amazon"
@@ -2064,6 +2101,12 @@
       "Faire"
     ]
   },
+  "CRYSTAL PEAKS NUTRITION": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Crystal Rock Healing, LLC": {
     "aliases": [],
     "sources": [
@@ -2204,6 +2247,12 @@
     ]
   },
   "DEAL SUPPLEMENT": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "Dear Apothecary": {
     "aliases": [],
     "sources": [
       "Amazon"
@@ -2408,6 +2457,12 @@
     ]
   },
   "DR. BO": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "Dr. Botanical Health": {
     "aliases": [],
     "sources": [
       "Amazon"
@@ -2691,6 +2746,12 @@
       "Amazon"
     ]
   },
+  "Electric Elixir": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Electric Shrooms": {
     "aliases": [],
     "sources": [
@@ -2767,6 +2828,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "EnvyCure": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Epycure": {
@@ -4120,6 +4187,12 @@
       "Amazon"
     ]
   },
+  "HCL HERBAL CODE LABS": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "HEAD-START": {
     "aliases": [],
     "sources": [
@@ -4192,6 +4265,12 @@
       "Faire"
     ]
   },
+  "Healthy Day Supplements": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Healthy Earth": {
     "aliases": [],
     "sources": [
@@ -4252,6 +4331,12 @@
       "Target"
     ]
   },
+  "HELLO100": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Hellomush": {
     "aliases": [],
     "sources": [
@@ -4285,6 +4370,7 @@
   "Herb Pharm": {
     "aliases": [],
     "sources": [
+      "Amazon",
       "Target",
       "iHerb"
     ]
@@ -4299,6 +4385,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "Herbal Nutrition": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Herbal Revolution Farm + Apothecary": {
@@ -4342,6 +4434,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "HERBIFY": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "herbl": {
@@ -4831,6 +4929,12 @@
       "Target"
     ]
   },
+  "IRSRDOQU": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Irwin Naturals": {
     "aliases": [],
     "sources": [
@@ -4854,6 +4958,12 @@
     "aliases": [],
     "sources": [
       "Target"
+    ]
+  },
+  "Itiban": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "IvyBears": {
@@ -5550,6 +5660,12 @@
       "Faire"
     ]
   },
+  "Liberty Lifestyle": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Life Cykel": {
     "aliases": [],
     "sources": [
@@ -5707,6 +5823,12 @@
     ]
   },
   "Live Conscious": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "Live Myco": {
     "aliases": [],
     "sources": [
       "Amazon"
@@ -6463,6 +6585,12 @@
       "Faire"
     ]
   },
+  "Moodstem": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Moon and Myco": {
     "aliases": [],
     "sources": [
@@ -6681,6 +6809,12 @@
     ]
   },
   "Mushroom Mojo": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "Mushroom Mornings": {
     "aliases": [],
     "sources": [
       "Amazon"
@@ -7320,6 +7454,12 @@
       "Target"
     ]
   },
+  "Noo Groove": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Noomadic": {
     "aliases": [],
     "sources": [
@@ -7330,6 +7470,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "NOORUZ": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Nootrilabs Naturals": {
@@ -7403,6 +7549,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "Nourishing Nutrients": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Nova Wellness": {
@@ -7573,6 +7725,12 @@
       "Amazon"
     ]
   },
+  "Nutrify": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Nutrimivida": {
     "aliases": [],
     "sources": [
@@ -7726,6 +7884,12 @@
       "Faire"
     ]
   },
+  "OH MY FUNGI GUMMIES": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Oh So Latina": {
     "aliases": [],
     "sources": [
@@ -7856,6 +8020,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "Oopeatol": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Open Ground": {
@@ -8125,6 +8295,12 @@
       "Faire"
     ]
   },
+  "Pelican Vitamins": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Pella Nutrition": {
     "aliases": [],
     "sources": [
@@ -8216,6 +8392,12 @@
     ]
   },
   "Petsology": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "PH PROWISE Healthcare": {
     "aliases": [],
     "sources": [
       "Amazon"
@@ -8673,6 +8855,12 @@
       "Amazon"
     ]
   },
+  "Puritan's Pride": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Purity Coffee": {
     "aliases": [],
     "sources": [
@@ -8731,6 +8919,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "Quenchii": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Questionables": {
@@ -8955,6 +9149,12 @@
       "Amazon"
     ]
   },
+  "Resonance Health": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Restorative Botanicals, LLC": {
     "aliases": [],
     "sources": [
@@ -9094,6 +9294,18 @@
     ]
   },
   "Roland Foods": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "Rolphood": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "Rooster Brew Coffee": {
     "aliases": [],
     "sources": [
       "Amazon"
@@ -9280,6 +9492,12 @@
     "aliases": [],
     "sources": [
       "Target"
+    ]
+  },
+  "Sampuraka": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Samyang": {
@@ -9529,6 +9747,12 @@
       "Target"
     ]
   },
+  "SHAPEINGIRL": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Shashibo": {
     "aliases": [],
     "sources": [
@@ -9735,6 +9959,12 @@
     ]
   },
   "Smallhold": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
+  "Smart Focus": {
     "aliases": [],
     "sources": [
       "Amazon"
@@ -11085,6 +11315,12 @@
       "Faire"
     ]
   },
+  "Tremetes": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Trendy Baby Mocc Shop": {
     "aliases": [],
     "sources": [
@@ -11700,6 +11936,12 @@
       "Faire"
     ]
   },
+  "waterandwellness": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
+    ]
+  },
   "Waterboy": {
     "aliases": [],
     "sources": [
@@ -12174,6 +12416,12 @@
     "aliases": [],
     "sources": [
       "Faire"
+    ]
+  },
+  "Yi Nutrition": {
+    "aliases": [],
+    "sources": [
+      "Amazon"
     ]
   },
   "Yikecao": {
