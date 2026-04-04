@@ -162,6 +162,19 @@ EXCLUDE_PATTERNS = [
     r"\bdel monte\b", r"\bforest to fork\b(?!.*extract)", r"\bshiloh farms\b",
     r"\bfigurine\b", r"\bsagebrook\b", r"\bfield guide\b",
     r"\b(?:hardcover|paperback)\b",
+    # Dried cooking mushrooms / grocery produce
+    r"\bdried.*(?:porcini|chanterelle|morel|wood\s*ear|black fungus)(?!.*extract|.*supplement)",
+    r"\bdried.*mushrooms?.*for cooking\b",
+    r"\bdehydrated.*(?:gourmet|morchella|edible).*mushroom",
+    r"\bedible.*(?:black fungus|wood ear)",
+    r"\bfor cooking\b(?!.*supplement)",
+    r"\bcooking cream\b", r"\bparmalat\b",
+    r"\bvigor(?:ous)?\s*mountains\b(?!.*supplement|.*extract|.*capsule)",
+    r"\broland foods\b", r"\bonetang\b", r"\bkopabana\b",
+    r"\bplug spawn\b", r"\bmycelium.*plug\b",
+    r"\b365 by whole\b",
+    r"\bproduce\b.*(?:bella|cremini|mushroom)",
+    r"\bsmallhold\b.*fresh",
     # Pet
     r"\bfor dogs?\b", r"\bfor cats?\b", r"\bfor pets?\b",
     r"\bcanine\b", r"\bfeline\b", r"\bpet supplement\b", r"\bpet chew\b",
@@ -2254,7 +2267,7 @@ function render() {{
   body.innerHTML = rows.map(p => `
     <tr style="border-bottom:1px solid #f0f0f0;">
       <td style="padding:6px;"><span style="background:${{srcColors[p.source]||'#999'}};color:white;padding:2px 8px;border-radius:4px;font-size:11px;white-space:nowrap;">${{p.source}}</span></td>
-      <td style="padding:6px; font-weight:500;">${{p.brand||'—'}}</td>
+      <td style="padding:6px; font-weight:500;">${{p.brand === 'Unknown Brand' ? '<span style="color:#a0aec0;font-style:italic;">Unknown Brand</span>' : (p.brand||'—')}}</td>
       <td style="padding:6px;"><a href="${{p.url||'#'}}" target="_blank" style="color:#2b6cb0;text-decoration:none;">${{(p.productName||'').substring(0,80)}}</a></td>
       <td style="padding:6px; font-size:11px; color:#718096;">${{p.mushroomTypes||'—'}}</td>
       <td style="padding:6px; white-space:nowrap;">${{p.formFactor||'—'}}</td>
@@ -2435,7 +2448,7 @@ def main():
         table_data.append({
             "source": p["source"],
             "id": p.get("id"),
-            "brand": p.get("brand"),
+            "brand": p.get("brand") or "Unknown Brand",
             "productName": p.get("productName"),
             "mushroomTypes": ", ".join(p["mushroomTypes"]) if isinstance(p.get("mushroomTypes"), list) else p.get("mushroomTypes"),
             "formFactor": p.get("formFactor"),
