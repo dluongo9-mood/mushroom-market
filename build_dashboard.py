@@ -1562,11 +1562,11 @@ def chart_venn(products):
     d = mp_brands.get("DTC", set())
 
     has_dtc = len(d) > 0
-    fig = plt.figure(figsize=(12 if has_dtc else 8, 6))
+    fig = plt.figure(figsize=(16 if has_dtc else 10, 8))
     fig.patch.set_facecolor("white")
 
     if has_dtc:
-        gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1], wspace=0.35)
+        gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1], wspace=0.4)
         ax_venn = fig.add_subplot(gs[0])
     else:
         ax_venn = fig.add_subplot(111)
@@ -1589,7 +1589,7 @@ def chart_venn(products):
     for pid in patch_colors:
         lbl = v.get_label_by_id(pid)
         if lbl:
-            lbl.set_fontsize(13)
+            lbl.set_fontsize(18)
             lbl.set_fontweight("bold")
             lbl.set_color("#222")
 
@@ -1601,7 +1601,7 @@ def chart_venn(products):
         lbl = v.get_label_by_id(lid)
         if lbl:
             lbl.set_text(f"{name}\n{count:,} brands")
-            lbl.set_fontsize(11)
+            lbl.set_fontsize(14)
             lbl.set_fontweight("bold")
             lbl.set_color(color)
 
@@ -1612,7 +1612,7 @@ def chart_venn(products):
     ax_venn.set_title(
         f"Retail Marketplace Brand Overlap\n"
         f"{aif} on all 3  ·  {ai+af+if_+aif} cross-listed  ·  Faire adds {len(f-a-i):,} unique",
-        fontsize=11, pad=10, color="#333",
+        fontsize=14, pad=14, color="#333",
     )
     ax_venn.axis("off")
 
