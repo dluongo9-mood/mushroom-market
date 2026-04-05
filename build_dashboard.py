@@ -2117,8 +2117,7 @@ def chart_review_growth_by_ff(keepa_data, products):
             x=all_months, y=values,
             mode="lines",
             name=ff,
-            stackgroup="one",
-            line=dict(width=0.5, color=palette[i % len(palette)]),
+            line=dict(width=2.5, color=palette[i % len(palette)]),
             hovertemplate=f"<b>{ff}</b><br>%{{x}}<br>Total reviews: %{{y:,}}<extra></extra>",
         ))
 
