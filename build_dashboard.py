@@ -2143,16 +2143,19 @@ def chart_sales_rank(keepa_data, products):
 
     prod_lookup = {p.get("id"): p for p in products if p.get("source") == "Amazon"}
 
-    # Get ASINs with sales rank, pick ones with most review growth (most interesting)
-    asin_reviews = {}
+    # Get ASINs with sales rank, pick ones with best (lowest) BSR
+    # Only include products that exist in our filtered product set (supplements only)
+    product_ids = {p.get("id") for p in products if p.get("source") == "Amazon"}
+    asin_best_rank = {}
     for asin, rows in keepa_data.items():
+        if asin not in product_ids:
+            continue
         rank_rows = [r for r in rows if r.get("salesRank") and r["salesRank"] not in ("", "None")]
         if len(rank_rows) > 50:
-            review_rows = [r for r in rows if r.get("reviewCount") and r["reviewCount"] not in ("", "None")]
-            if review_rows:
-                asin_reviews[asin] = int(review_rows[-1]["reviewCount"])
+            best = min(int(r["salesRank"]) for r in rank_rows if int(r["salesRank"]) > 0)
+            asin_best_rank[asin] = best
 
-    top_asins = sorted(asin_reviews.keys(), key=lambda a: -asin_reviews[a])[:10]
+    top_asins = sorted(asin_best_rank.keys(), key=lambda a: asin_best_rank[a])[:12]
 
     palette = [
         "#2563EB", "#DC2626", "#059669", "#D97706", "#7C3AED",
