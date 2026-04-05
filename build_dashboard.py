@@ -902,11 +902,32 @@ def load_all():
             "url": r.get("url"),
         })
 
+    # DTC non-mushroom product filter (merch, books, non-mushroom supplements)
+    DTC_EXCLUDE_KW = [
+        "cosmetic bag", "book", "healing adaptogens", "superhair", "super hair",
+        "candle", "planner", "mug", "tote", "hat", "hoodie", "shirt", "t-shirt",
+        "socks", "crew sock", "tumbler", "pin ", "apron",
+        "gift card", "online class",
+        "collagen peptide", "magnesium", "vitamin d",
+        "anandamide", "ashitaba", "yin power", "shilajit",
+        "prash", "he shou wu", "pine pollen", "tocos",
+        "beauty pearl", "spirulina", "chlorella", "eucommia",
+        "probiotics", "oat milk", "protein sampler",
+        "turmeric", "ashwagandha", "pearl -",
+        "liver detox", "grandma's kadha", "serving spoon",
+        "cellular waters",
+    ]
+    dtc_filtered = 0
     if Path(DTC_CSV).exists():
         for r in read_csv(DTC_CSV):
             name = r.get("productName", "")
+            tags = r.get("tags", "")
+            combined = (name + " " + tags).lower()
             if is_excluded(name):
                 excluded += 1
+                continue
+            if any(kw in combined for kw in DTC_EXCLUDE_KW):
+                dtc_filtered += 1
                 continue
             ff = r.get("formFactor") or infer_form_factor(name)
             products.append({
@@ -920,6 +941,8 @@ def load_all():
                 "soldPastMonth": None,
                 "url": r.get("url"),
             })
+        if dtc_filtered:
+            print(f"  DTC: filtered {dtc_filtered} non-mushroom products")
     else:
         print(f"  ⚠ {DTC_CSV} not found — skipping DTC")
 
