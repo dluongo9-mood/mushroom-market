@@ -2347,6 +2347,21 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="card full-width">{chart_top_brands}</div>
 
   <div class="section-header"><h2>Demand &amp; Revenue</h2><p>Based on "sold in past month" from Amazon &amp; iHerb (Faire does not report this)</p></div>
+  <div class="card full-width" style="padding:20px 24px;">
+    <h3 style="margin:0 0 12px 0; font-size:15px; color:#1a202c;">Form Factor Categories</h3>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px 20px; font-size:13px; color:#4a5568;">
+      <div><b>Coffee</b> — Ground, instant &amp; K-Cup mushroom coffee blends</div>
+      <div><b>Capsule</b> — Capsules, softgels, caplets &amp; liposomal supplements</div>
+      <div><b>Powder</b> — Loose powder (non-coffee) for mixing into smoothies or food</div>
+      <div><b>Gummy</b> — Chewable gummy supplements</div>
+      <div><b>Liquid</b> — Concentrated tinctures, liquid drops &amp; extract syrups</div>
+      <div><b>Drink</b> — Ready-to-drink beverages, shots, seltzers &amp; broths</div>
+      <div><b>Tea</b> — Tea bags, matcha, chai &amp; latte blends</div>
+      <div><b>Chocolate</b> — Chocolate bars, cocoa &amp; cacao-based products</div>
+      <div><b>Tablet</b> — Pressed tablets &amp; lozenges</div>
+      <div><b>Other</b> — Bars, snacks, topicals, grow kits &amp; uncategorized</div>
+    </div>
+  </div>
   <div class="card full-width">{chart_market_map}</div>
   <div class="card full-width">{chart_top_revenue}</div>
   <div class="card full-width">{chart_brand_revenue}</div>
