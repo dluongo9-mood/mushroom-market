@@ -173,6 +173,8 @@ EXCLUDE_PATTERNS = [
     r"\bvigor(?:ous)?\s*mountains\b(?!.*supplement|.*extract|.*capsule)",
     r"\broland foods\b", r"\bonetang\b", r"\bkopabana\b",
     r"\bplug spawn\b", r"\bmycelium.*plug\b",
+    r"\bvelvet\s+mushroom\b", r"\bvelvet\s+antler\s+mushroom\b",
+    r"\bbai\s+hua\s+rong\b",
     r"\b365 by whole\b",
     r"\bproduce\b.*(?:bella|cremini|mushroom)",
     r"\bsmallhold\b.*fresh",
@@ -2060,6 +2062,78 @@ def chart_review_growth(keepa_data, products):
     return fig
 
 
+def chart_review_growth_by_ff(keepa_data, products):
+    """Area chart: total review growth over time broken down by form factor."""
+    if not keepa_data:
+        fig = go.Figure()
+        fig.add_annotation(text="No Keepa data yet", showarrow=False, font=dict(size=16))
+        fig.update_layout(height=400, template="plotly_white", title="Review Growth by Form Factor")
+        return fig
+
+    prod_lookup = {p.get("id"): p for p in products if p.get("source") == "Amazon"}
+
+    # For each ASIN, get review count at each month boundary
+    from collections import defaultdict
+    asin_monthly = defaultdict(dict)
+    for asin, rows in keepa_data.items():
+        for r in rows:
+            rc = r.get("reviewCount")
+            if not rc or rc in ("", "None"):
+                continue
+            month = r["date"][:7]
+            asin_monthly[asin][month] = int(float(rc))
+
+    # Roll up by form factor
+    ff_monthly = defaultdict(lambda: defaultdict(int))
+    for asin, months in asin_monthly.items():
+        p = prod_lookup.get(asin, {})
+        ff = p.get("formFactor") or "Other"
+        for month, rc in months.items():
+            ff_monthly[ff][month] += rc
+
+    # Get top form factors by max monthly total
+    ff_max = {ff: max(months.values()) for ff, months in ff_monthly.items() if months}
+    top_ff = sorted(ff_max.keys(), key=lambda f: -ff_max[f])[:10]
+
+    all_months = sorted(set(m for months in ff_monthly.values() for m in months))
+    all_months = [m for m in all_months if m >= "2023-01"]
+
+    palette = [
+        "#2563EB", "#DC2626", "#059669", "#D97706", "#7C3AED",
+        "#DB2777", "#0891B2", "#65A30D", "#EA580C", "#4F46E5",
+    ]
+
+    fig = go.Figure()
+    for i, ff in enumerate(top_ff):
+        months = ff_monthly[ff]
+        values = []
+        last_val = 0
+        for m in all_months:
+            if m in months:
+                last_val = months[m]
+            values.append(last_val)
+
+        fig.add_trace(go.Scatter(
+            x=all_months, y=values,
+            mode="lines",
+            name=ff,
+            stackgroup="one",
+            line=dict(width=0.5, color=palette[i % len(palette)]),
+            hovertemplate=f"<b>{ff}</b><br>%{{x}}<br>Total reviews: %{{y:,}}<extra></extra>",
+        ))
+
+    fig.update_layout(
+        title="Review Volume Growth by Form Factor (Keepa — stacked area)",
+        xaxis_title="Month",
+        yaxis_title="Total Reviews",
+        yaxis=dict(tickformat=","),
+        height=550,
+        template="plotly_white",
+        legend=dict(font=dict(size=11)),
+    )
+    return fig
+
+
 def chart_sales_rank(keepa_data, products):
     """Line chart: sales rank over time (lower = better)."""
     if not keepa_data:
@@ -2376,6 +2450,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <div class="section-header"><h2>Growth Over Time (Keepa)</h2><p>Historical review count and sales rank data from Keepa.com</p></div>
   <div class="card full-width">{chart_review_growth}</div>
+  <div class="card full-width">{chart_review_by_ff}</div>
   <div class="card full-width">{chart_brand_growth}</div>
   <div class="card full-width">{chart_brand_growth_rate}</div>
   <div class="card full-width">{chart_sales_rank}</div>
@@ -2664,6 +2739,7 @@ def main():
         "chart_launch_by_ff":   chart_launch_by_form_factor(products),
         "chart_launch_pct":     chart_launch_pct(products),
         "chart_review_growth":  chart_review_growth(keepa_data, products),
+        "chart_review_by_ff":   chart_review_growth_by_ff(keepa_data, products),
         "chart_brand_growth":   chart_brand_growth(keepa_data, products),
         "chart_brand_growth_rate": chart_brand_growth_rate(keepa_data, products),
         "chart_sales_rank":     chart_sales_rank(keepa_data, products),
