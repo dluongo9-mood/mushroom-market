@@ -61,32 +61,50 @@ MULTI_BLEND_PATTERNS = [
 ]
 
 FORM_FACTOR_RULES = [
-    # Coffee MUST come before Tea/Powder so "mushroom coffee powder" → Coffee
-    ("Coffee",      [r"coffee", r"espresso", r"\bbrew\b", r"k[\s-]*cup"]),
-    # Tea: matcha, chai, latte (but NOT if already matched Coffee above)
-    ("Tea",         [r"\btea\b", r"matcha", r"\bchai\b", r"\blatte\b"]),
-    ("Capsule",     [r"capsule", r"vegcap", r"vcap", r"vegicap", r"plantcap",
-                     r"softgel", r"gelcap", r"veggie\s*cap", r"caplet",
-                     r"liposomal", r"\d+\s*ct\b", r"\d+\s*count"]),
-    ("Tablet",      [r"tablet", r"lozenge"]),
-    ("Powder",      [r"powder", r"pwdr", r"granule"]),  # non-coffee powder
-    ("Gummy",       [r"gumm(?:y|ies)"]),
-    ("Liquid",      [r"liquid", r"tincture", r"drops?", r"syrup", r"elixir",
-                     r"fl\s*oz", r"\bml\b"]),
-    ("Chocolate",   [r"chocolat", r"cocoa", r"cacao"]),
-    ("Drink",       [r"\bdrink", r"beverage", r"\bshot\b", r"\bjuice\b",
-                     r"sparkling", r"seltzer", r"\bbroth\b"]),
-    ("Chew",        [r"\bchew", r"chewable"]),
-    ("Pouch",       [r"pouch"]),
-    ("Bar",         [r"\bbar\b", r"snack\s*bar", r"protein\s*bar"]),
-    ("Snack",       [r"\bchips?\b", r"crisp", r"jerky"]),
-    ("Topical",     [r"cream", r"serum", r"balm", r"topical", r"salve"]),
-    ("Spray",       [r"spray"]),
-    ("Grow Kit",    [r"grow\s*kit", r"spawn", r"substrate"]),
-    ("Whole/Dried", [r"dried\s+\w*\s*mushroom", r"sliced\s+\w*\s*mushroom",
-                     r"whole\s+mushroom", r"\bfresh\s+\w*\s*mushroom",
-                     r"organic\s+(shiitake|oyster|maitake|porcini|cremini|baby\s*bella)\b",
-                     r"frozen\s+.*mushroom", r"mushroom\s+medley"]),
+    # ── Priority order matters: most specific first ──
+    # Coffee MUST come before drink powders so "mushroom coffee powder" → Coffee
+    ("Coffee",           [r"coffee", r"espresso", r"\bbrew\b", r"k[\s-]*cup"]),
+    # Pouches/mints BEFORE RTD so "5 Can Pack" pouches don't become RTD
+    ("Other",            [r"\bpouch(?:es)?\b", r"\bmint\b(?!.*extract)", r"supplemint"]),
+    # RTD Beverages: cans, bottles, ready-to-drink (before Liquid so RTD cans don't become Liquid)
+    ("RTD Beverage",     [r"sparkling", r"seltzer", r"\bcan\b", r"\bcans\b",
+                          r"ready\s*to\s*drink", r"\brtd\b", r"\bbroth\b",
+                          r"\bshot\b(?!.*mushroom)", r"\bjuice\b"]),
+    # Other Drink Powders: tea, matcha, chai, chocolate drink mixes, protein mixes
+    ("Other Drink Powder", [r"\btea\b", r"matcha", r"\bchai\b", r"\blatte\b",
+                            r"hot\s*chocolat", r"cocoa\s*(?:mix|powder|drink)",
+                            r"cacao\s*(?:mix|powder|drink)", r"chocolate\s*(?:mix|drink)",
+                            r"protein.*mushroom.*(?:powder|mix)", r"mushroom.*protein.*(?:powder|mix)",
+                            r"smoothie\s*mix"]),
+    # Chocolate: bars only (not drink mixes — those are caught above)
+    ("Chocolate",        [r"chocolate\s*bar", r"dark\s*chocolate", r"chocolat.*\bbar\b",
+                          r"\bbar\b.*chocolat",
+                          r"mushroom\s*chocolat", r"functional\s*mushroom\s*chocolat",
+                          r"chocolat.*(?:supplement|mushroom)",
+                          r"ceremonial\s*(?:cacao|chocolate)",
+                          r"cacao\s*(?:\+|and|&)\s*\d*\s*mushroom",
+                          r"mushroom.*cacao(?!\s*(?:powder|mix|drink))"]),
+    # Gummies
+    ("Gummy",            [r"gumm(?:y|ies)", r"\bchew\b", r"\bchewable\b"]),
+    # Capsule/Tablet: pills, softgels, tablets — the largest supplement form
+    ("Capsule/Tablet",   [r"capsule", r"vegcap", r"vcap", r"vegicap", r"plantcap",
+                          r"softgel", r"gelcap", r"veggie\s*cap", r"caplet",
+                          r"liposomal", r"tablet", r"lozenge",
+                          r"\d+\s*ct\b", r"\d+\s*count"]),
+    # Liquid: tinctures and liquid supplements ONLY (RTD already caught above)
+    ("Liquid",           [r"tincture", r"liquid\s*(?:supplement|extract|drop|vitamin)",
+                          r"\bdrops?\b", r"elixir", r"syrup",
+                          r"liquid", r"fl\s*oz", r"\bml\b"]),
+    # Mushroom Powder: pure supplement powders (after coffee/drink powders are already caught)
+    ("Mushroom Powder",  [r"powder", r"pwdr", r"granule"]),
+    # Everything else
+    # Remaining non-standard forms → Other
+    ("Other",            [r"\bcrisp\b", r"\bchip\b", r"\bjerky\b",
+                          r"\bbar\b(?!.*chocolate)", r"protein\s*bar",
+                          r"\bcreamer\b", r"\bspray\b"]),
+    # Chew merged into Gummy above; Topical excluded via EXCLUDE_PATTERNS
+    ("Grow Kit",         [r"grow\s*kit", r"spawn", r"substrate"]),
+    # Whole/Dried excluded — culinary mushrooms, not supplements
 ]
 
 # ── Junk / non-supplement filter ───────────────────────────────────────────────
@@ -161,6 +179,14 @@ EXCLUDE_PATTERNS = [
     r"\baurora\b.*\bstuffed\b",
     r"\bbone broth\b", r"\bpork chop\b", r"\bbeef patt", r"\bchicken.*rice\b",
     r"\bdel monte\b", r"\bforest to fork\b(?!.*extract)", r"\bshiloh farms\b",
+    r"\bphillips\s*(?:mushroom|farm)\b", r"\bdearmine\b", r"\bguyaki\b", r"\bguayaki\b",
+    r"\byerba\s*ma(?:te|dre)\b",
+    r"\bwhole\s+mushroom", r"\bfresh\s+\w*\s*mushroom",
+    r"\bfrozen\s+.*mushroom", r"\bmushroom\s+medley\b",
+    r"\baffirmation\s*card", r"\bring\s*holder\b", r"\bcandy\s*dish\b",
+    r"\bdecor\s*statue\b", r"\bforaging\s*(bag|kit)\b", r"\bstorage\s*set\b",
+    r"\borganic\s+(oyster|shiitake|maitake)\s+mushroom\b(?!.*extract|.*supplement|.*capsule|.*powder)",
+    r"\btopical\b", r"\bbalm\b(?!.*mushroom.*supplement)", r"\bsalve\b", r"\bserum\b(?!.*mushroom)",
     r"\bfigurine\b", r"\bsagebrook\b", r"\bfield guide\b",
     r"\b(?:hardcover|paperback)\b",
     # Dried cooking mushrooms / grocery produce
@@ -254,17 +280,16 @@ CLEAN_FORM_FACTORS = {
     "bag", "instant", "caplet", "syrup",
 }
 
-# Map messy Amazon values to clean labels
+# Map messy Amazon values to clean labels (updated for new segmentation)
 FF_NORMALIZE = {
-    "capsule": "Capsule", "capsules": "Capsule", "softgel": "Capsule",
-    "caplet": "Capsule", "liposomal": "Capsule",
-    "powder": "Powder", "granule": "Powder", "packet": "Powder",
+    "capsule": "Capsule/Tablet", "capsules": "Capsule/Tablet", "softgel": "Capsule/Tablet",
+    "caplet": "Capsule/Tablet", "liposomal": "Capsule/Tablet", "tablet": "Capsule/Tablet",
+    "powder": "Mushroom Powder", "granule": "Mushroom Powder", "packet": "Mushroom Powder",
     "gummy": "Gummy",
     "liquid": "Liquid", "drop": "Liquid", "drops": "Liquid", "syrup": "Liquid",
-    "tablet": "Tablet", "chewable": "Chew",
-    "ground": "Coffee", "instant": "Coffee",
-    "matcha": "Tea", "bag": "Tea",
-    "whole bean": "Coffee",
+    "chewable": "Gummy", "chew": "Gummy",
+    "ground": "Coffee", "instant": "Coffee", "whole bean": "Coffee",
+    "matcha": "Other Drink Powder", "bag": "Other Drink Powder",
     "dark chocolate": "Chocolate", "chocolate": "Chocolate",
     "fabric": None, "stainless steel": None,  # non-supplement junk
 }
@@ -282,12 +307,20 @@ def infer_form_factor(text):
 
 
 def clean_amazon_form_factor(raw_ff, title):
-    """Infer form factor from title first, fall back to cleaned Amazon field."""
-    # Always try title first — most reliable
+    """Normalize form factor: always infer from title first (most accurate), then fall back to CSV/raw."""
+    VALID_CATEGORIES = {
+        "Coffee", "Mushroom Powder", "Other Drink Powder", "RTD Beverage",
+        "Gummy", "Chocolate", "Liquid", "Capsule/Tablet", "Other",
+        "Grow Kit",
+    }
+    # Always infer from title first — our rules are more accurate than CSV values
     from_title = infer_form_factor(title)
     if from_title:
         return from_title
-    # Fall back to Amazon's field only if it's in the clean whitelist
+    # Fall back to CSV if it's a valid category
+    if raw_ff and raw_ff.strip() in VALID_CATEGORIES:
+        return raw_ff.strip()
+    # Try normalizing raw value
     if raw_ff:
         key = raw_ff.strip().lower()
         if key in FF_NORMALIZE:
@@ -872,7 +905,7 @@ def load_all():
             "source": "iHerb", "id": r.get("partNumber"),
             "brand": r.get("brand"), "productName": r.get("productName") or full,
             "mushroomTypes": extract_mushroom_types(full),
-            "formFactor": r.get("formFactor") or infer_form_factor(full),
+            "formFactor": clean_amazon_form_factor(r.get("formFactor"), full),
             "price": parse_float(r.get("price")),
             "rating": parse_float(r.get("rating")),
             "reviewCount": parse_int(r.get("reviewCount")),
@@ -894,7 +927,7 @@ def load_all():
             "source": "Faire", "id": r.get("productToken"),
             "brand": r.get("brand"), "productName": name,
             "mushroomTypes": extract_mushroom_types(name),
-            "formFactor": infer_form_factor(name),
+            "formFactor": clean_amazon_form_factor(r.get("formFactor"), name),
             "price": parse_float(r.get("retailPrice")),
             "rating": parse_float(r.get("rating")),
             "reviewCount": parse_int(r.get("reviewCount")),
@@ -929,7 +962,7 @@ def load_all():
             if any(kw in combined for kw in DTC_EXCLUDE_KW):
                 dtc_filtered += 1
                 continue
-            ff = r.get("formFactor") or infer_form_factor(name)
+            ff = clean_amazon_form_factor(r.get("formFactor"), name)
             products.append({
                 "source": "DTC", "id": r.get("productId"),
                 "brand": r.get("brand"), "productName": name,
@@ -956,7 +989,7 @@ def load_all():
             if not (has_mushroom_keyword(name) and is_consumable(name)):
                 target_filtered += 1
                 continue
-            ff = r.get("formFactor") or infer_form_factor(name)
+            ff = clean_amazon_form_factor(r.get("formFactor"), name)
             products.append({
                 "source": "Target", "id": r.get("tcin"),
                 "brand": r.get("brand"), "productName": name,
@@ -1716,15 +1749,19 @@ def chart_market_map(products):
         return fig
 
     sorted_ff = sorted(ff_totals.keys(), key=lambda k: -ff_totals[k])
-    # Keep top 8, merge rest
-    if len(sorted_ff) > 8:
-        keep = sorted_ff[:8]
+    # Keep top 10 (enough for all defined categories), merge rest
+    if len(sorted_ff) > 10:
+        keep = sorted_ff[:10]
         for ff in sorted_ff[8:]:
             for b, r in ff_brand_rev[ff].items():
                 ff_brand_rev["Other"][b] += r
             ff_totals["Other"] = ff_totals.get("Other", 0) + ff_totals[ff]
         sorted_ff = keep if "Other" in keep else keep + ["Other"]
-        sorted_ff = sorted(sorted_ff, key=lambda k: -ff_totals.get(k, 0))
+
+    # Always pin "Other" to the right, regardless of revenue
+    sorted_ff = [ff for ff in sorted(sorted_ff, key=lambda k: -ff_totals.get(k, 0)) if ff != "Other"]
+    if "Other" in ff_totals:
+        sorted_ff.append("Other")
 
     total_rev = sum(ff_totals[ff] for ff in sorted_ff)
     MAX_BRANDS = 6
@@ -1813,20 +1850,22 @@ def chart_market_map(products):
                 hoverinfo="text",
             ))
 
-            # Label inside the block
-            if pct >= 6 and col_width >= 5:
-                if pct >= 15:
+            # Label inside the block — only if column is wide enough
+            if pct >= 6 and col_width >= 6:
+                if pct >= 15 and col_width >= 8:
                     label = f"<b>{brand}</b><br>${rev/1000:,.0f}K"
                 elif pct >= 8:
-                    label = brand
+                    label = brand[:int(col_width * 1.5)]
                 else:
-                    label = brand[:15]
+                    label = brand[:int(col_width)]
+                font_size = 10 if col_width >= 10 else 8
                 fig.add_annotation(
                     x=x_center, y=y_bottom + pct / 2,
                     text=label,
                     showarrow=False,
-                    font=dict(size=10, color="white" if brand != "Other Brands" else "#555"),
-                    yanchor="middle",
+                    font=dict(size=font_size, color="white" if brand != "Other Brands" else "#555"),
+                    yanchor="middle", xanchor="center",
+                    width=col_width * 8,  # constrain width to column
                 )
 
             y_bottom += pct
@@ -2448,18 +2487,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="section-header"><h2>Demand &amp; Revenue</h2><p>Based on "sold in past month" from Amazon &amp; iHerb (Faire does not report this)</p></div>
   <div class="card full-width" style="padding:20px 24px;">
     <h3 style="margin:0 0 12px 0; font-size:15px; color:#1a202c;">Form Factor Categories</h3>
-    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px 20px; font-size:13px; color:#4a5568;">
-      <div><b>Coffee</b> — Ground, instant &amp; K-Cup mushroom coffee blends</div>
-      <div><b>Capsule</b> — Capsules, softgels, caplets &amp; liposomal supplements</div>
-      <div><b>Powder</b> — Loose powder (non-coffee) for mixing into smoothies or food</div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:10px 20px; font-size:13px; color:#4a5568;">
+      <div><b>Coffee</b> — Ground, instant, beans &amp; K-Cup mushroom coffee</div>
+      <div><b>Mushroom Powder</b> — Pure supplement powder (not drink mixes)</div>
+      <div><b>Other Drink Powder</b> — Tea, matcha, hot chocolate, protein mixes</div>
+      <div><b>RTD Beverage</b> — Cans, bottles, shots, ready-to-drink</div>
       <div><b>Gummy</b> — Chewable gummy supplements</div>
-      <div><b>Liquid</b> — Concentrated tinctures, liquid drops &amp; extract syrups</div>
-      <div><b>Drink</b> — Ready-to-drink beverages, shots, seltzers &amp; broths</div>
-      <div><b>Tea</b> — Tea bags, matcha, chai &amp; latte blends</div>
-      <div><b>Chocolate</b> — Chocolate bars, cocoa &amp; cacao-based products</div>
-      <div><b>Tablet</b> — Pressed tablets &amp; lozenges</div>
-      <div><b>Other</b> — Bars, snacks, topicals, grow kits &amp; uncategorized</div>
+      <div><b>Chocolate</b> — Bars (not drink mixes)</div>
+      <div><b>Liquid</b> — Tinctures &amp; liquid supplement drops</div>
+      <div><b>Capsule/Tablet</b> — Capsules, softgels, tablets &amp; liposomal</div>
     </div>
+  </div>
+  <div style="display:flex; justify-content:flex-end; margin-bottom:8px; grid-column:1/-1;">
+    <button onclick="exportMarketMapCSV()" style="padding:8px 16px; font-size:12px; background:#2563EB; color:white; border:none; border-radius:6px; cursor:pointer;">&#x2B07; Export Market Map Data (CSV)</button>
   </div>
   <div class="card full-width">{chart_market_map}</div>
   <div class="card full-width">{chart_top_revenue}</div>
@@ -2475,8 +2515,18 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <div class="section-header"><h2>Growth Over Time (Keepa)</h2><p>Historical review count and sales rank data from Keepa.com</p></div>
   <div class="card full-width">{chart_review_growth}</div>
-  <div class="card full-width">{chart_review_by_ff}</div>
-  <div class="card full-width">{chart_brand_growth}</div>
+  <div class="card full-width" style="padding:0;">
+    <div style="display:flex; justify-content:flex-end; padding:12px 16px 0;">
+      <button onclick="exportKeepaBrandCSV()" style="padding:6px 14px; font-size:12px; background:#2563EB; color:white; border:none; border-radius:6px; cursor:pointer;">&#x2B07; Export Brand Growth CSV</button>
+    </div>
+    {chart_brand_growth}
+  </div>
+  <div class="card full-width" style="padding:0;">
+    <div style="display:flex; justify-content:flex-end; padding:12px 16px 0;">
+      <button onclick="exportKeepaFFCSV()" style="padding:6px 14px; font-size:12px; background:#2563EB; color:white; border:none; border-radius:6px; cursor:pointer;">&#x2B07; Export Form Factor Growth CSV</button>
+    </div>
+    {chart_review_by_ff}
+  </div>
   <div class="card full-width">{chart_brand_growth_rate}</div>
   <div class="card full-width">{chart_sales_rank}</div>
 
@@ -2542,6 +2592,34 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
     <div style="text-align:center; margin-top:12px;">
       <button id="dt-more" onclick="showMore()" style="padding:8px 24px; background:#edf2f7; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; cursor:pointer;">Show More</button>
+    </div>
+  </div>
+
+  <div class="section-header"><h2>Competitor Directory</h2><p>All {total_brands:,} brands ranked by total reviews. Search and export.</p></div>
+  <div class="card full-width" style="padding:20px;">
+    <div style="display:flex; gap:12px; margin-bottom:12px; align-items:end;">
+      <div>
+        <label style="font-size:12px; font-weight:600; color:#718096; display:block; margin-bottom:4px;">Search</label>
+        <input type="text" id="cd-search" placeholder="Brand or mushroom type..."
+               style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:6px; width:260px; font-size:13px;">
+      </div>
+      <button onclick="exportCompetitorCSV()" style="padding:8px 16px; background:#2563EB; color:white; border:none; border-radius:6px; font-size:12px; cursor:pointer;">&#x2B07; Export CSV</button>
+      <div style="font-size:12px; color:#718096;" id="cd-count"></div>
+    </div>
+    <div style="overflow-x:auto; max-height:600px; overflow-y:auto;">
+      <table id="cd-table" style="width:100%;">
+        <thead><tr style="position:sticky; top:0; background:white; border-bottom:2px solid #e2e8f0;">
+          <th style="padding:6px 8px; cursor:pointer;" onclick="sortCompetitors('b')">Brand</th>
+          <th style="padding:6px 8px; text-align:right; cursor:pointer;" onclick="sortCompetitors('p')">Products</th>
+          <th style="padding:6px 8px; text-align:right; cursor:pointer;" onclick="sortCompetitors('rv')">Est Rev/mo</th>
+          <th style="padding:6px 8px; text-align:right; cursor:pointer;" onclick="sortCompetitors('rc')">Reviews</th>
+          <th style="padding:6px 8px; text-align:right; cursor:pointer;" onclick="sortCompetitors('rt')">Rating</th>
+          <th style="padding:6px 8px;">Mushroom Types</th>
+          <th style="padding:6px 8px;">Form Factors</th>
+          <th style="padding:6px 8px;">Sources</th>
+        </tr></thead>
+        <tbody id="cd-body"></tbody>
+      </table>
     </div>
   </div>
 
@@ -2717,6 +2795,85 @@ async function askAI() {{
     btn.textContent = getUsed() >= MAX_PROMPTS ? 'Limit reached' : 'Ask Claude';
   }}
 }}
+
+// ── CSV Export functions ──
+const MARKET_MAP_DATA = {market_map_json};
+
+// ── Competitor Directory ──
+const BRANDS = {brand_directory_json};
+let cdSort = 'rc';
+let cdDir = -1;
+
+function renderCompetitors() {{
+  const q = (document.getElementById('cd-search').value || '').toLowerCase();
+  let filtered = BRANDS.filter(b => !q || b.b.toLowerCase().includes(q) || b.m.toLowerCase().includes(q));
+  filtered.sort((a, b) => (a[cdSort] > b[cdSort] ? 1 : -1) * cdDir);
+  const show = filtered.slice(0, 200);
+  document.getElementById('cd-body').innerHTML = show.map(b => `<tr style="border-bottom:1px solid #f0f0f0;">
+    <td style="padding:6px 8px; font-weight:600;">${{b.b}}</td>
+    <td style="padding:6px 8px; text-align:right;">${{b.p}}</td>
+    <td style="padding:6px 8px; text-align:right; font-weight:500;">${{b.rv ? '$'+b.rv.toLocaleString() : '—'}}</td>
+    <td style="padding:6px 8px; text-align:right; font-weight:500;">${{b.rc ? b.rc.toLocaleString() : '—'}}</td>
+    <td style="padding:6px 8px; text-align:right;">${{b.rt || '—'}}</td>
+    <td style="padding:6px 8px; font-size:11px; color:#718096;">${{b.m || '—'}}</td>
+    <td style="padding:6px 8px; font-size:11px;">${{b.ff || '—'}}</td>
+    <td style="padding:6px 8px; font-size:11px;">${{b.s}}</td>
+  </tr>`).join('');
+  document.getElementById('cd-count').textContent = `Showing ${{show.length}} of ${{filtered.length}} brands`;
+}}
+
+function sortCompetitors(col) {{
+  if (cdSort === col) cdDir *= -1;
+  else {{ cdSort = col; cdDir = col === 'b' ? 1 : -1; }}
+  renderCompetitors();
+}}
+
+function exportCompetitorCSV() {{
+  const header = 'Brand,Products,Est Revenue/mo,Total Reviews,Avg Rating,Mushroom Types,Form Factors,Sources\\n';
+  const rows = BRANDS.map(b => `"${{b.b}}","${{b.p}}","${{b.rv}}","${{b.rc}}","${{b.rt}}","${{b.m}}","${{b.ff}}","${{b.s}}"`).join('\\n');
+  downloadCSV('mushroom_competitor_directory.csv', header + rows);
+}}
+
+document.getElementById('cd-search').addEventListener('input', renderCompetitors);
+renderCompetitors();
+const KEEPA_FF_DATA = {keepa_ff_json};
+const KEEPA_BRAND_DATA = {keepa_brand_json};
+
+function downloadCSV(filename, csvContent) {{
+  const blob = new Blob([csvContent], {{ type: 'text/csv;charset=utf-8;' }});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}}
+
+function exportMarketMapCSV() {{
+  const header = 'Form Factor,Brand,Monthly Revenue ($),Product Name\\n';
+  const rows = MARKET_MAP_DATA.sort((a,b) => b.revenue - a.revenue)
+    .map(r => `"${{r.formFactor}}","${{r.brand}}","${{r.revenue}}","${{r.productName.replace(/"/g,'""')}}"`)
+    .join('\\n');
+  downloadCSV('mushroom_market_map.csv', header + rows);
+}}
+
+function exportKeepaFFCSV() {{
+  const header = 'Form Factor,Month,Review Count\\n';
+  const rows = KEEPA_FF_DATA.map(r => `"${{r.formFactor}}","${{r.month}}","${{r.reviewCount}}"`).join('\\n');
+  downloadCSV('mushroom_review_growth_by_form_factor.csv', header + rows);
+}}
+
+function exportKeepaBrandCSV() {{
+  const header = 'Brand,Month,Review Count\\n';
+  const rows = KEEPA_BRAND_DATA.map(r => `"${{r.brand}}","${{r.month}}","${{r.reviewCount}}"`).join('\\n');
+  downloadCSV('mushroom_review_growth_by_brand.csv', header + rows);
+}}
+
+function exportProductsCSV() {{
+  const header = 'Source,Brand,Product Name,Form Factor,Mushroom Types,Price,Rating,Reviews,Sold/Mo,URL\\n';
+  const rows = ALL_PRODUCTS.map(p =>
+    `"${{p.source || ''}}","${{p.brand || ''}}","${{(p.productName || '').replace(/"/g,'""')}}","${{p.formFactor || ''}}","${{p.mushroomTypes || ''}}","${{p.price || ''}}","${{p.rating || ''}}","${{p.reviewCount || ''}}","${{p.soldPastMonth || ''}}","${{p.url || ''}}"`
+  ).join('\\n');
+  downloadCSV('mushroom_products.csv', header + rows);
+}}
 </script>
 </body>
 </html>"""
@@ -2799,6 +2956,89 @@ def main():
         })
     product_json = json.dumps(table_data, default=str)
 
+    # Build market map export data (form factor × brand × revenue)
+    from collections import defaultdict as _dd
+    _mm_data = []
+    for p in products:
+        if not (p.get("price") and p.get("soldPastMonth") and p["soldPastMonth"] > 0):
+            continue
+        _mm_data.append({
+            "formFactor": p.get("formFactor", "Other"),
+            "brand": p.get("brand", "Unknown"),
+            "revenue": round(p["price"] * p["soldPastMonth"], 2),
+            "productName": p.get("productName", "")[:60],
+        })
+    market_map_json = json.dumps(_mm_data, default=str)
+
+    # Build competitor directory data
+    from collections import defaultdict as _dd3
+    _brand_data = _dd3(lambda: {"products": 0, "revenue": 0, "reviews": 0,
+                                 "rating_sum": 0, "rated": 0, "mushrooms": _dd3(int),
+                                 "form_factors": _dd3(int), "sources": set()})
+    for p in products:
+        brand = p.get("brand") or "Unknown Brand"
+        if brand == "Unknown Brand":
+            continue
+        b = _brand_data[brand]
+        b["products"] += 1
+        rev = (p.get("price") or 0) * (p.get("soldPastMonth") or 0)
+        b["revenue"] += rev
+        b["reviews"] += (p.get("reviewCount") or 0)
+        if p.get("rating"):
+            b["rating_sum"] += p["rating"]
+            b["rated"] += 1
+        b["sources"].add(p.get("source", ""))
+        b["form_factors"][p.get("formFactor") or "Other"] += 1
+        for mt in (p.get("mushroomTypes") or []):
+            if isinstance(mt, str) and mt:
+                b["mushrooms"][mt] += 1
+    _brand_list = []
+    for brand, b in sorted(_brand_data.items(), key=lambda x: -x[1]["reviews"]):
+        mushrooms = ", ".join(sorted(b["mushrooms"].keys()))
+        ffs = ", ".join(ff for ff, _ in sorted(b["form_factors"].items(), key=lambda x: -x[1]))
+        avg_r = round(b["rating_sum"] / b["rated"], 1) if b["rated"] else 0
+        _brand_list.append({
+            "b": brand, "p": b["products"], "rv": round(b["revenue"]),
+            "rc": b["reviews"], "rt": avg_r,
+            "m": mushrooms, "ff": ffs,
+            "s": ", ".join(sorted(b["sources"])),
+        })
+    brand_directory_json = json.dumps(_brand_list[:500], default=str)  # top 500
+
+    # Build Keepa export data (review growth by form factor and by brand)
+    _keepa_ff_export = []
+    _keepa_brand_export = []
+    if keepa_data:
+        prod_lookup = {p.get("id"): p for p in products if p.get("source") == "Amazon"}
+        from collections import defaultdict as _dd2
+        asin_monthly = _dd2(dict)
+        for asin, rows in keepa_data.items():
+            for r in rows:
+                rc = r.get("reviewCount")
+                if not rc or rc in ("", "None"):
+                    continue
+                month = r["date"][:7]
+                asin_monthly[asin][month] = int(float(rc))
+        # By form factor
+        ff_monthly = _dd2(lambda: _dd2(int))
+        brand_monthly = _dd2(lambda: _dd2(int))
+        for asin, months in asin_monthly.items():
+            p = prod_lookup.get(asin, {})
+            ff = p.get("formFactor") or "Other"
+            brand = p.get("brand") or "Unknown"
+            for month, rc in months.items():
+                if month >= "2023-01":
+                    ff_monthly[ff][month] += rc
+                    brand_monthly[brand][month] += rc
+        for ff, months in ff_monthly.items():
+            for month, rc in sorted(months.items()):
+                _keepa_ff_export.append({"formFactor": ff, "month": month, "reviewCount": rc})
+        for brand, months in brand_monthly.items():
+            for month, rc in sorted(months.items()):
+                _keepa_brand_export.append({"brand": brand, "month": month, "reviewCount": rc})
+    keepa_ff_json = json.dumps(_keepa_ff_export, default=str)
+    keepa_brand_json = json.dumps(_keepa_brand_export, default=str)
+
     # Build filter options
     ff_counts = Counter(p.get("formFactor") for p in products if p.get("formFactor"))
     ff_options = "".join(f"<option>{ff}</option>" for ff, _ in ff_counts.most_common())
@@ -2839,8 +3079,8 @@ def main():
     ai_lines.append("TOP 30 BRANDS BY REVIEWS:")
     top_brands = sorted([b for b in brands if b.get("maxReviews", 0) > 0], key=lambda b: -b["maxReviews"])[:30]
     for b in top_brands:
-        ai_lines.append(f"  {b['brand']}: {b['maxReviews']:,} reviews, {b['skus']} SKUs, "
-                        f"avg ${b['avgPrice']:.2f}" + (f", on {', '.join(b['sources'])}" if b.get('sources') else ""))
+        ai_lines.append(f"  {b['brand']}: {b.get('maxReviews') or 0:,} reviews, {b.get('skus') or 0} SKUs, "
+                        f"avg ${b.get('avgPrice') or 0:.2f}" + (f", on {', '.join(b['sources'])}" if b.get('sources') else ""))
     ai_lines.append("")
     ai_lines.append("TOP 20 PRODUCTS BY EST MONTHLY REVENUE:")
     rev_products = sorted(
@@ -2867,6 +3107,10 @@ def main():
         ff_options=ff_options,
         mt_options=mt_options,
         ai_context_json=ai_context_json,
+        market_map_json=market_map_json,
+        keepa_ff_json=keepa_ff_json,
+        keepa_brand_json=keepa_brand_json,
+        brand_directory_json=brand_directory_json,
         **chart_html,
     )
 
